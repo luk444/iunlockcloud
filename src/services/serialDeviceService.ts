@@ -154,3 +154,17 @@ export const getUserSerialDevices = async (userId: string): Promise<RegisteredSe
     ...doc.data()
   })) as RegisteredSerialDevice[];
 };
+
+export const updateSerialDeviceUnlockResult = async (userId: string, deviceId: string, unlockResult: 'success' | 'token_denied' | 'failed' | 'pending'): Promise<void> => {
+  const deviceRef = doc(db, 'registeredSerialDevices', deviceId);
+  const deviceDoc = await getDoc(deviceRef);
+  
+  if (!deviceDoc.exists() || deviceDoc.data()?.userId !== userId) {
+    throw new Error('Device not found or unauthorized');
+  }
+  
+  await updateDoc(deviceRef, {
+    unlockResult,
+    updatedAt: serverTimestamp()
+  });
+};

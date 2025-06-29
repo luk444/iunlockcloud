@@ -21,6 +21,7 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
   const [registering, setRegistering] = useState(false);
   const [showBlacklistNotification, setShowBlacklistNotification] = useState(false);
   const [notificationVisible, setNotificationVisible] = useState(false);
+  const [registeredDeviceId, setRegisteredDeviceId] = useState<string | null>(null);
   const { currentUser } = useAuth();
   const phoneDataRef = useRef<HTMLDivElement>(null);
 
@@ -39,9 +40,11 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
     
     setRegistering(true);
     try {
+      let deviceId: string;
+      
       if (isSerialDevice(device)) {
         // Register serial device (Apple Watch/iPad)
-        await registerSerialDevice(currentUser.uid, {
+        deviceId = await registerSerialDevice(currentUser.uid, {
           serialNumber: imei,
           model: device.model,
           modelName: device.modelName,
@@ -56,7 +59,7 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
         }, device.credits);
       } else {
         // Register iPhone device
-        await registerDevice(currentUser.uid, {
+        deviceId = await registerDevice(currentUser.uid, {
           imei,
           model: device.model,
           modelName: device.modelName,
@@ -70,6 +73,7 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
         }, device.credits);
       }
       
+      setRegisteredDeviceId(deviceId);
       setIsRegistered(true);
       
       // Show success notification with credits deducted
@@ -265,7 +269,9 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
           <UnlockFMI deviceInfo={{ 
             model: device.modelName, 
             imei, 
-            img: device.imageUrl 
+            img: device.imageUrl,
+            deviceId: registeredDeviceId || undefined,
+            deviceType: isSerialDevice(device) ? device.deviceType : 'iphone'
           }} />
         </Modal>
       )}

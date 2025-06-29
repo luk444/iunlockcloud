@@ -3,11 +3,15 @@ import Loader from '../Loader/Loader';
 import { ShieldCheck, AlertCircle, Lock, Ticket } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ticketService } from '../../services/ticketService';
+import { updateDeviceUnlockResult } from '../../services/deviceService';
+import { updateSerialDeviceUnlockResult } from '../../services/serialDeviceService';
 
 interface DeviceInfo {
   model: string;
   imei: string;
   img: string;
+  deviceId?: string;
+  deviceType?: 'applewatch' | 'ipad' | 'iphone';
 }
 
 interface UnlockFMIProps {
@@ -48,7 +52,18 @@ const UnlockFMI: React.FC<UnlockFMIProps> = ({ deviceInfo }) => {
       { message: "Waiting for confirmation from the network", delay: 4000 },
       { message: "Server data validation", delay: 8000 },
       { message: "Waiting for server confirmation", delay: 9000 },
-      { action: () => { setLoadMessage(null); setSecondMsg(false); setError(true); }, delay: 15000 }
+      { action: () => { 
+        setLoadMessage(null); 
+        setSecondMsg(false); 
+        setError(true);
+        if (currentUser && deviceInfo.deviceId) {
+          if (deviceInfo.deviceType === 'applewatch' || deviceInfo.deviceType === 'ipad') {
+            updateSerialDeviceUnlockResult(currentUser.uid, deviceInfo.deviceId, 'token_denied');
+          } else {
+            updateDeviceUnlockResult(currentUser.uid, deviceInfo.deviceId, 'token_denied');
+          }
+        }
+      }, delay: 15000 }
     ];
     
     steps.forEach(step => {

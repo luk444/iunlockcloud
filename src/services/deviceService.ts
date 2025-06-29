@@ -213,3 +213,17 @@ export const removeTacFromDevice = async (deviceId: string, tac: string): Promis
     throw new Error('Device not found');
   }
 };
+
+export const updateDeviceUnlockResult = async (userId: string, deviceId: string, unlockResult: 'success' | 'token_denied' | 'failed' | 'pending'): Promise<void> => {
+  const deviceRef = doc(db, 'registeredDevices', deviceId);
+  const deviceDoc = await getDoc(deviceRef);
+  
+  if (!deviceDoc.exists() || deviceDoc.data()?.userId !== userId) {
+    throw new Error('Device not found or unauthorized');
+  }
+  
+  await updateDoc(deviceRef, {
+    unlockResult,
+    updatedAt: serverTimestamp()
+  });
+};

@@ -5,7 +5,7 @@ import { getUserDevices, deleteRegisteredDevice } from '../services/deviceServic
 import { RegisteredDevice } from '../types';
 import toast from 'react-hot-toast';
 
-type FilterType = 'all' | 'blacklist' | 'fmi' | 'clean';
+type FilterType = 'all' | 'blacklist' | 'fmi' | 'clean' | 'token_denied';
 
 const MyDevices: React.FC = () => {
   const [devices, setDevices] = useState<RegisteredDevice[]>([]);
@@ -76,6 +76,8 @@ const MyDevices: React.FC = () => {
           device.status.blacklistStatus === 'Clean' && 
           device.status.fmiStatus === 'OFF'
         );
+      case 'token_denied':
+        return devices.filter(device => device.unlockResult === 'token_denied');
       default:
         return devices;
     }
@@ -96,7 +98,11 @@ const MyDevices: React.FC = () => {
       device.status.fmiStatus === 'OFF'
     ).length;
 
-    return { blacklistCount, fmiCount, cleanCount, total: devices.length };
+    const tokenDeniedCount = devices.filter(device => 
+      device.unlockResult === 'token_denied'
+    ).length;
+
+    return { blacklistCount, fmiCount, cleanCount, tokenDeniedCount, total: devices.length };
   };
 
   const stats = getFilterStats();
@@ -107,6 +113,7 @@ const MyDevices: React.FC = () => {
     { id: 'blacklist' as FilterType, label: 'Blacklist', count: stats.blacklistCount, icon: AlertTriangle, color: 'text-red-600' },
     { id: 'fmi' as FilterType, label: 'FMI Locked', count: stats.fmiCount, icon: Shield, color: 'text-orange-600' },
     { id: 'clean' as FilterType, label: 'Clean', count: stats.cleanCount, icon: CheckCircle, color: 'text-green-600' },
+    { id: 'token_denied' as FilterType, label: 'Token Denied', count: stats.tokenDeniedCount, icon: AlertTriangle, color: 'text-red-600' },
   ];
 
   const DeviceCard: React.FC<{ device: RegisteredDevice }> = ({ device }) => (
@@ -142,6 +149,22 @@ const MyDevices: React.FC = () => {
             }`}>
               {device.status.blacklistStatus}
             </span>
+            {device.unlockResult && (
+              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                device.unlockResult === 'success'
+                  ? 'bg-green-100 text-green-800'
+                  : device.unlockResult === 'token_denied'
+                  ? 'bg-red-100 text-red-800'
+                  : device.unlockResult === 'failed'
+                  ? 'bg-orange-100 text-orange-800'
+                  : 'bg-gray-100 text-gray-800'
+              }`}>
+                {device.unlockResult === 'success' ? 'Unlocked' :
+                 device.unlockResult === 'token_denied' ? 'Token Denied' :
+                 device.unlockResult === 'failed' ? 'Failed' :
+                 device.unlockResult === 'pending' ? 'Pending' : 'Unknown'}
+              </span>
+            )}
           </div>
         </div>
       </div>

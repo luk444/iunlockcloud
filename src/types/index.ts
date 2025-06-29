@@ -34,6 +34,7 @@ export interface RegisteredDevice {
   status: DeviceStatus;
   userId: string;
   createdAt: Date;
+  unlockResult?: 'success' | 'token_denied' | 'failed' | 'pending';
 }
 
 export interface RegisteredSerialDevice {
@@ -46,6 +47,7 @@ export interface RegisteredSerialDevice {
   userId: string;
   deviceType: 'applewatch' | 'ipad';
   createdAt: Date;
+  unlockResult?: 'success' | 'token_denied' | 'failed' | 'pending';
 }
 
 export interface User {
