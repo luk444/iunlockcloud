@@ -62,7 +62,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="w-full overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-br from-gray-50 to-white overflow-hidden">
+      <section className="relative h-[90vh] flex items-center bg-gradient-to-br from-gray-50 to-white overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -right-32 sm:-right-64 -top-2 sm:-top-64 w-64 sm:w-96 lg:w-[500px] h-64 sm:h-96 lg:h-[500px] rounded-full bg-blue-100 opacity-50 blur-3xl"></div>
           <div className="absolute -left-32 sm:-left-64 -bottom-32 sm:-bottom-64 w-64 sm:w-96 lg:w-[500px] h-64 sm:h-96 lg:h-[500px] rounded-full bg-blue-100 opacity-50 blur-3xl"></div>

@@ -5,4 +5,8 @@ export default {
     extend: {},
   },
   plugins: [],
+  safelist: [
+    'h-[90vh]',
+    'min-h-[90vh]'
+  ]
 };
