@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, CreditCard, AlertCircle, Copy, CheckCircle, Clock } from 'lucide-react';
+import { Wallet, CreditCard, AlertCircle, Copy, CheckCircle, Clock, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { paymentService } from '../../services/paymentService';
 import toast from 'react-hot-toast';
@@ -12,10 +12,16 @@ const AddCredits: React.FC = () => {
   const [error, setError] = useState('');
   const [hasPendingPayment, setHasPendingPayment] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [walletIndex, setWalletIndex] = useState(0);
   const { currentUser } = useAuth();
 
-  // Admin wallet address - replace with your actual wallet
-  const ADMIN_WALLET = "0x55d398326f99059fF775485246999027B3197955";
+  // Admin wallet addresses - replace with your actual wallets
+  const ADMIN_WALLETS = [
+    "0x55d398326f99059fF775485246999027B3197955",
+    "0xbfdc4c848e38abd2d4d31324aff756c2351cc43f"
+  ];
+
+  const currentWallet = ADMIN_WALLETS[walletIndex];
 
   useEffect(() => {
     checkPendingPayments();
@@ -133,7 +139,7 @@ const AddCredits: React.FC = () => {
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(ADMIN_WALLET);
+      await navigator.clipboard.writeText(currentWallet);
       setCopied(true);
       toast.success(
         '📋 Address copied to clipboard!',
@@ -150,6 +156,22 @@ const AddCredits: React.FC = () => {
     } catch (err) {
       toast.error('Error copying address');
     }
+  };
+
+  const refreshWallet = () => {
+    setWalletIndex((prevIndex) => (prevIndex + 1) % ADMIN_WALLETS.length);
+    setCopied(false);
+    toast.success(
+      `🔄 Switched to wallet ${walletIndex + 2 > ADMIN_WALLETS.length ? 1 : walletIndex + 2}`,
+      {
+        duration: 2000,
+        style: {
+          background: '#10B981',
+          color: 'white',
+          fontWeight: '500',
+        },
+      }
+    );
   };
 
   const resetForm = () => {
@@ -279,7 +301,7 @@ const AddCredits: React.FC = () => {
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
                 <h3 className="font-medium text-gray-800 mb-2">Send USDT to this address:</h3>
                 <div className="flex items-center gap-2 p-2 bg-white border rounded-lg">
-                  <code className="flex-1 text-sm font-mono break-all">{ADMIN_WALLET}</code>
+                  <code className="flex-1 text-sm font-mono break-all">{currentWallet}</code>
                   <button
                     onClick={copyToClipboard}
                     className="p-2 text-gray-500 hover:text-blue-500 transition-colors"
@@ -287,7 +309,17 @@ const AddCredits: React.FC = () => {
                   >
                     {copied ? <CheckCircle size={16} className="text-green-500" /> : <Copy size={16} />}
                   </button>
+                  <button
+                    onClick={refreshWallet}
+                    className="p-2 text-gray-500 hover:text-green-500 transition-colors"
+                    title="Switch to alternative wallet"
+                  >
+                    <RefreshCw size={16} />
+                  </button>
                 </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  💡 If the first wallet doesn't work, click the refresh button to try the alternative wallet
+                </p>
               </div>
 
               <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded">
