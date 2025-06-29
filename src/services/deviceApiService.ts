@@ -169,6 +169,11 @@ export const deviceApiService = {
       const deviceTitle = data.device.title;
       const normalizedModelName = deviceTitle.toLowerCase().replace(/\s+/g, '-');
       
+      // Add "Apple" prefix to modelName if it doesn't already have it
+      const formattedModelName = deviceTitle.toLowerCase().includes('apple') 
+        ? deviceTitle 
+        : `Apple ${deviceTitle}`;
+      
       // Check if we have a mapped model
       const mappedModel = modelImageMap[normalizedModelName];
       
@@ -176,7 +181,7 @@ export const deviceApiService = {
         // Use mapped data
         return {
           model: normalizedModelName,
-          modelName: deviceTitle,
+          modelName: formattedModelName,
           imageUrl: mappedModel.imageUrl,
           credits: mappedModel.credits,
           tacs: [imei.substring(0, 8)], // Add the TAC from the IMEI
@@ -186,7 +191,7 @@ export const deviceApiService = {
         // Use API data with default values
         return {
           model: normalizedModelName,
-          modelName: deviceTitle,
+          modelName: formattedModelName,
           imageUrl: data.device.image_url || 'https://via.placeholder.com/240x240?text=iPhone',
           credits: 100, // Default credits
           tacs: [imei.substring(0, 8)],

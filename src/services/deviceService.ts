@@ -48,24 +48,36 @@ export const getDeviceByTac = async (tac: string): Promise<Device | null> => {
 export const getDeviceByImei = async (imei: string): Promise<Device | null> => {
   const tac = imei.substring(0, 8);
   
-  // First check manually created devices
-  const manualDevice = await getDeviceByTac(tac);
-  if (manualDevice) {
-    return manualDevice;
-  }
-  
-  // If not found, try API
+  // Always try API first for iPhone devices to get fresh data with proper formatting
   const apiDevice = await deviceApiService.getDeviceByImei(imei);
   if (apiDevice) {
-    // Optionally save to database for future reference
+    // Update or save to database for future reference
     try {
-      await addDevice(apiDevice);
+      // Check if device already exists in database
+      const existingDevice = await getDeviceByTac(tac);
+      if (existingDevice) {
+        // Update existing device with fresh data
+        await updateDevice(existingDevice.id!, {
+          modelName: apiDevice.modelName,
+          imageUrl: apiDevice.imageUrl,
+          credits: apiDevice.credits
+        });
+      } else {
+        // Save new device to database
+        await addDevice(apiDevice);
+      }
       return apiDevice;
     } catch (error) {
-      console.error('Error saving API device to database:', error);
+      console.error('Error saving/updating API device to database:', error);
       // Return the device even if we can't save it
       return apiDevice;
     }
+  }
+  
+  // If API doesn't return a device, check manually created devices
+  const manualDevice = await getDeviceByTac(tac);
+  if (manualDevice) {
+    return manualDevice;
   }
   
   return null;

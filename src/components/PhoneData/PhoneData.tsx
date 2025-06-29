@@ -34,95 +34,91 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
     }
   }, []);
 
-  useEffect(() => {
-    const registerUserDevice = async () => {
-      if (!currentUser || registering || isRegistered) return;
+  const handleRegisterDevice = async () => {
+    if (!currentUser || registering || isRegistered) return;
+    
+    setRegistering(true);
+    try {
+      if (isSerialDevice(device)) {
+        // Register serial device (Apple Watch/iPad)
+        await registerSerialDevice(currentUser.uid, {
+          serialNumber: imei,
+          model: device.model,
+          modelName: device.modelName,
+          imageUrl: device.imageUrl,
+          deviceType: device.deviceType,
+          status: {
+            fmiStatus: 'ON',
+            blacklistStatus: 'Clean',
+            activationLock: 'Active',
+            icloudStatus: 'Locked'
+          }
+        }, device.credits);
+      } else {
+        // Register iPhone device
+        await registerDevice(currentUser.uid, {
+          imei,
+          model: device.model,
+          modelName: device.modelName,
+          imageUrl: device.imageUrl,
+          status: {
+            fmiStatus: 'ON',
+            blacklistStatus: 'Clean',
+            activationLock: 'Active',
+            icloudStatus: 'Locked'
+          }
+        }, device.credits);
+      }
       
-      setRegistering(true);
-      try {
-        if (isSerialDevice(device)) {
-          // Register serial device (Apple Watch/iPad)
-          await registerSerialDevice(currentUser.uid, {
-            serialNumber: imei,
-            model: device.model,
-            modelName: device.modelName,
-            imageUrl: device.imageUrl,
-            deviceType: device.deviceType,
-            status: {
-              fmiStatus: 'ON',
-              blacklistStatus: 'Clean',
-              activationLock: 'Active',
-              icloudStatus: 'Locked'
-            }
-          }, device.credits);
-        } else {
-          // Register iPhone device
-          await registerDevice(currentUser.uid, {
-            imei,
-            model: device.model,
-            modelName: device.modelName,
-            imageUrl: device.imageUrl,
-            status: {
-              fmiStatus: 'ON',
-              blacklistStatus: 'Clean',
-              activationLock: 'Active',
-              icloudStatus: 'Locked'
-            }
-          }, device.credits);
-        }
-        
-        setIsRegistered(true);
-        
-        // Show success notification with credits deducted
-        if (!currentUser.isAdmin) {
-          toast.success(
-            `✅ Device registered successfully! -${device.credits} credits`,
-            {
-              duration: 4000,
-              style: {
-                background: '#10B981',
-                color: 'white',
-                fontWeight: '500',
-              },
-              iconTheme: {
-                primary: 'white',
-                secondary: '#10B981',
-              },
-            }
-          );
-        } else {
-          toast.success(
-            `✅ Device registered successfully!`,
-            {
-              duration: 3000,
-              style: {
-                background: '#10B981',
-                color: 'white',
-                fontWeight: '500',
-              },
-            }
-          );
-        }
-      } catch (error: any) {
-        console.error('Error registering device:', error);
-        toast.error(
-          error.message || 'Error registering device',
+      setIsRegistered(true);
+      
+      // Show success notification with credits deducted
+      if (!currentUser.isAdmin) {
+        toast.success(
+          `✅ Device registered successfully! -${device.credits} credits`,
           {
             duration: 4000,
             style: {
-              background: '#EF4444',
+              background: '#10B981',
+              color: 'white',
+              fontWeight: '500',
+            },
+            iconTheme: {
+              primary: 'white',
+              secondary: '#10B981',
+            },
+          }
+        );
+      } else {
+        toast.success(
+          `✅ Device registered successfully!`,
+          {
+            duration: 3000,
+            style: {
+              background: '#10B981',
               color: 'white',
               fontWeight: '500',
             },
           }
         );
-      } finally {
-        setRegistering(false);
       }
-    };
-
-    registerUserDevice();
-  }, [currentUser, imei, device]);
+    } catch (error: any) {
+      console.error('Error registering device:', error);
+      toast.error(
+        error.message || 'Error registering device',
+        {
+          duration: 4000,
+          style: {
+            background: '#EF4444',
+            color: 'white',
+            fontWeight: '500',
+          },
+        }
+      );
+    } finally {
+      setRegistering(false);
+    }
+  };
 
   const handleUnlock = () => {
     setShowUnlock(true);
@@ -236,12 +232,12 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
           </div>
 
           <button
-            onClick={handleUnlock}
-            disabled={registering || !isRegistered}
+            onClick={isRegistered ? handleUnlock : handleRegisterDevice}
+            disabled={registering}
             className="w-full mt-3 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium text-sm rounded-lg hover:from-blue-600 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Lock size={14} />
-            {registering ? 'Registering...' : 'Unlock Device'}
+            {registering ? 'Registering...' : isRegistered ? 'Unlock Device' : 'Register Device'}
           </button>
 
           {registering && (

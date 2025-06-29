@@ -324,9 +324,14 @@ const Admin: React.FC = () => {
       return;
     }
 
+    // Add "Apple" prefix to modelName if it doesn't already have it
+    const formattedModelName = newDevice.modelName.toLowerCase().includes('apple') 
+      ? newDevice.modelName 
+      : `Apple ${newDevice.modelName}`;
+
     try {
       await addSerialDevice({
-        modelName: newDevice.modelName,
+        modelName: formattedModelName,
         model: newDevice.model,
         imageUrl: newDevice.imageUrl,
         deviceType: newDevice.deviceType,
@@ -354,9 +359,14 @@ const Admin: React.FC = () => {
   const handleUpdateDevice = async () => {
     if (!editingDevice || !editingDevice.id) return;
 
+    // Add "Apple" prefix to modelName if it doesn't already have it
+    const formattedModelName = editingDevice.modelName.toLowerCase().includes('apple') 
+      ? editingDevice.modelName 
+      : `Apple ${editingDevice.modelName}`;
+
     try {
       await updateSerialDevice(editingDevice.id, {
-        modelName: editingDevice.modelName,
+        modelName: formattedModelName,
         model: editingDevice.model,
         imageUrl: editingDevice.imageUrl,
         deviceType: editingDevice.deviceType,

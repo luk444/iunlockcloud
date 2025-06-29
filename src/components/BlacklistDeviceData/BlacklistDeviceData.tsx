@@ -34,95 +34,91 @@ const BlacklistDeviceData: React.FC<BlacklistDeviceDataProps> = ({ imei, device,
     }
   }, []);
 
-  useEffect(() => {
-    const registerUserDevice = async () => {
-      if (!currentUser || registering || isRegistered) return;
+  const handleRegisterDevice = async () => {
+    if (!currentUser || registering || isRegistered) return;
+    
+    setRegistering(true);
+    try {
+      if (isSerialDevice(device)) {
+        // Register serial device (Apple Watch/iPad)
+        await registerSerialDevice(currentUser.uid, {
+          serialNumber: imei,
+          model: device.model,
+          modelName: device.modelName,
+          imageUrl: device.imageUrl,
+          deviceType: device.deviceType,
+          status: {
+            fmiStatus: 'ON',
+            blacklistStatus: 'Reported',
+            activationLock: 'Active',
+            icloudStatus: 'Locked'
+          }
+        }, device.credits);
+      } else {
+        // Register iPhone device
+        await registerDevice(currentUser.uid, {
+          imei,
+          model: device.model,
+          modelName: device.modelName,
+          imageUrl: device.imageUrl,
+          status: {
+            fmiStatus: 'ON',
+            blacklistStatus: 'Reported',
+            activationLock: 'Active',
+            icloudStatus: 'Locked'
+          }
+        }, device.credits);
+      }
       
-      setRegistering(true);
-      try {
-        if (isSerialDevice(device)) {
-          // Register serial device (Apple Watch/iPad)
-          await registerSerialDevice(currentUser.uid, {
-            serialNumber: imei,
-            model: device.model,
-            modelName: device.modelName,
-            imageUrl: device.imageUrl,
-            deviceType: device.deviceType,
-            status: {
-              fmiStatus: 'ON',
-              blacklistStatus: 'Reported',
-              activationLock: 'Active',
-              icloudStatus: 'Locked'
-            }
-          }, device.credits);
-        } else {
-          // Register iPhone device
-          await registerDevice(currentUser.uid, {
-            imei,
-            model: device.model,
-            modelName: device.modelName,
-            imageUrl: device.imageUrl,
-            status: {
-              fmiStatus: 'ON',
-              blacklistStatus: 'Reported',
-              activationLock: 'Active',
-              icloudStatus: 'Locked'
-            }
-          }, device.credits);
-        }
-        
-        setIsRegistered(true);
-        
-        // Show success notification with credits deducted
-        if (!currentUser.isAdmin) {
-          toast.success(
-            `✅ Device registered for blacklist removal! -${device.credits} credits`,
-            {
-              duration: 4000,
-              style: {
-                background: '#10B981',
-                color: 'white',
-                fontWeight: '500',
-              },
-              iconTheme: {
-                primary: 'white',
-                secondary: '#10B981',
-              },
-            }
-          );
-        } else {
-          toast.success(
-            `✅ Device registered for blacklist removal!`,
-            {
-              duration: 3000,
-              style: {
-                background: '#10B981',
-                color: 'white',
-                fontWeight: '500',
-              },
-            }
-          );
-        }
-      } catch (error: any) {
-        console.error('Error registering device for blacklist:', error);
-        toast.error(
-          error.message || 'Error registering device for blacklist',
+      setIsRegistered(true);
+      
+      // Show success notification with credits deducted
+      if (!currentUser.isAdmin) {
+        toast.success(
+          `✅ Device registered for blacklist removal! -${device.credits} credits`,
           {
             duration: 4000,
             style: {
-              background: '#EF4444',
+              background: '#10B981',
+              color: 'white',
+              fontWeight: '500',
+            },
+            iconTheme: {
+              primary: 'white',
+              secondary: '#10B981',
+            },
+          }
+        );
+      } else {
+        toast.success(
+          `✅ Device registered for blacklist removal!`,
+          {
+            duration: 3000,
+            style: {
+              background: '#10B981',
               color: 'white',
               fontWeight: '500',
             },
           }
         );
-      } finally {
-        setRegistering(false);
       }
-    };
-
-    registerUserDevice();
-  }, [currentUser, imei, device]);
+    } catch (error: any) {
+      console.error('Error registering device for blacklist:', error);
+      toast.error(
+        error.message || 'Error registering device for blacklist',
+        {
+          duration: 4000,
+          style: {
+            background: '#EF4444',
+            color: 'white',
+            fontWeight: '500',
+          },
+        }
+      );
+    } finally {
+      setRegistering(false);
+    }
+  };
 
   const handleRemoval = () => {
     setShowRemoval(true);
@@ -229,12 +225,12 @@ const BlacklistDeviceData: React.FC<BlacklistDeviceDataProps> = ({ imei, device,
           </div>
   
           <button
-            onClick={handleRemoval}
-            disabled={registering || !isRegistered}
+            onClick={isRegistered ? handleRemoval : handleRegisterDevice}
+            disabled={registering}
             className="w-full mt-3 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium text-sm rounded-lg hover:from-red-600 hover:to-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Shield size={14} />
-            {registering ? 'Registering...' : 'Remove from Blacklist'}
+            {registering ? 'Registering...' : isRegistered ? 'Remove from Blacklist' : 'Register Device'}
           </button>
   
           {registering && (
