@@ -23,7 +23,7 @@ const MyDevices: React.FC = () => {
       setDevices(userDevices);
     } catch (error) {
       console.error('Error loading devices:', error);
-      toast.error('Error al cargar tus dispositivos');
+      toast.error('Error loading your devices');
     } finally {
       setLoading(false);
     }
@@ -31,13 +31,13 @@ const MyDevices: React.FC = () => {
 
   const formatCreatedAt = (createdAt: any): string => {
   try {
-    if (!createdAt) return 'Desconocido';
-    if (createdAt instanceof Date) return createdAt.toLocaleDateString('es-ES');
-    if (createdAt.toDate) return createdAt.toDate().toLocaleDateString('es-ES'); // Firebase Timestamp
-    if (createdAt.seconds) return new Date(createdAt.seconds * 1000).toLocaleDateString('es-ES'); // Raw seconds
-    return 'Desconocido';
+    if (!createdAt) return 'Unknown';
+    if (createdAt instanceof Date) return createdAt.toLocaleDateString('en-US');
+    if (createdAt.toDate) return createdAt.toDate().toLocaleDateString('en-US'); // Firebase Timestamp
+    if (createdAt.seconds) return new Date(createdAt.seconds * 1000).toLocaleDateString('en-US'); // Raw seconds
+    return 'Unknown';
   } catch {
-    return 'Fecha Inválida';
+    return 'Invalid Date';
   }
 };
 
@@ -47,7 +47,7 @@ const MyDevices: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 pt-8">
         <div className="flex items-center gap-2 mb-6">
           <Smartphone className="text-blue-500" size={24} />
-          <h1 className="text-2xl font-bold text-gray-800">Mis Dispositivos</h1>
+          <h1 className="text-2xl font-bold text-gray-800">My Devices</h1>
         </div>
 
         {loading ? (
@@ -61,15 +61,15 @@ const MyDevices: React.FC = () => {
                 <Smartphone size={24} className="text-blue-600" />
               </div>
             </div>
-            <h2 className="text-xl font-medium text-gray-800 mb-2">No se Encontraron Dispositivos</h2>
+            <h2 className="text-xl font-medium text-gray-800 mb-2">No Devices Found</h2>
             <p className="text-gray-600 max-w-md mx-auto mb-6">
-              Aún no has registrado ningún dispositivo. Busca un dispositivo usando su IMEI para agregarlo a tu colección.
+              You haven't registered any devices yet. Search for a device using its IMEI to add it to your collection.
             </p>
             <a
               href="/register"
               className="btn btn-primary inline-flex"
             >
-              Registrar un Dispositivo
+              Register a Device
             </a>
           </div>
         ) : (
@@ -105,9 +105,9 @@ const MyDevices: React.FC = () => {
                           ? 'bg-red-100 text-red-800'
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {device.status.blacklistStatus === 'Clean' ? 'Limpio' : 
-                         device.status.blacklistStatus === 'Reported' ? 'Reportado' : 
-                         device.status.blacklistStatus === 'Blacklisted' ? 'En Lista Negra' : 
+                        {device.status.blacklistStatus === 'Clean' ? 'Clean' : 
+                         device.status.blacklistStatus === 'Reported' ? 'Reported' : 
+                         device.status.blacklistStatus === 'Blacklisted' ? 'Blacklisted' : 
                          device.status.blacklistStatus}
                       </span>
                     </div>

@@ -165,7 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (previousCredits !== null && userData.credits !== undefined) {
               const creditDifference = userData.credits - previousCredits;
               if (creditDifference > 0) {
-                toast.success(`💰 ¡Créditos agregados! +${creditDifference} créditos`, {
+                toast.success(`💰 Credits added! +${creditDifference} credits`, {
                   duration: 5000,
                   style: {
                     background: '#059669',
@@ -178,7 +178,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                   },
                 });
               } else if (creditDifference < 0) {
-                toast(`📉 ${Math.abs(creditDifference)} créditos utilizados`, {
+                toast(`📉 ${Math.abs(creditDifference)} credits used`, {
                   duration: 3000,
                   style: {
                     background: '#3B82F6',
@@ -231,7 +231,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await reload(result.user);
 
     if (!result.user.emailVerified) {
-      throw new Error('Por favor, verifica tu correo antes de iniciar sesión.');
+      throw new Error('Please verify your email before logging in.');
     }
 
     await fetchUserData(result.user);

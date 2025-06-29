@@ -73,27 +73,27 @@ const BlacklistDeviceData: React.FC<BlacklistDeviceDataProps> = ({ imei, device,
         // Show success notification with credits deducted
         if (!currentUser.isAdmin) {
           toast.success(
-            `✅ Dispositivo registrado para remoción de blacklist! -${device.credits} créditos`,
+            `✅ Device registered for blacklist removal! -${device.credits} credits`,
             {
               duration: 4000,
               style: {
-                background: '#DC2626',
+                background: '#10B981',
                 color: 'white',
                 fontWeight: '500',
               },
               iconTheme: {
                 primary: 'white',
-                secondary: '#DC2626',
+                secondary: '#10B981',
               },
             }
           );
         } else {
           toast.success(
-            `✅ Dispositivo registrado para remoción de blacklist!`,
+            `✅ Device registered for blacklist removal!`,
             {
               duration: 3000,
               style: {
-                background: '#DC2626',
+                background: '#10B981',
                 color: 'white',
                 fontWeight: '500',
               },
@@ -101,9 +101,9 @@ const BlacklistDeviceData: React.FC<BlacklistDeviceDataProps> = ({ imei, device,
           );
         }
       } catch (error: any) {
-        console.error('Error registering device:', error);
+        console.error('Error registering device for blacklist:', error);
         toast.error(
-          error.message || 'Error al registrar dispositivo para blacklist',
+          error.message || 'Error registering device for blacklist',
           {
             duration: 4000,
             style: {

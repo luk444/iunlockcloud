@@ -362,7 +362,7 @@ const TicketsPage: React.FC = () => {
                           )}
                           {ticket.type === 'credit_loading' && ticket.requestedCredits && (
                             <div className="text-xs text-gray-500">
-                              Créditos: {ticket.requestedCredits}
+                              Credits: {ticket.requestedCredits}
                             </div>
                           )}
                         </td>

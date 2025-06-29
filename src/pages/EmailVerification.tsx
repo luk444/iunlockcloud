@@ -8,7 +8,7 @@ const EmailVerification: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { verifyEmail, checkActionCode } = useAuth();
+  const { verifyEmail, checkActionCode, currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'error'>('pending');
   const [errorMessage, setErrorMessage] = useState('');
@@ -28,35 +28,39 @@ const EmailVerification: React.FC = () => {
   useEffect(() => {
     const handleVerification = async () => {
       if (!oobCode) {
-        console.log('No se encontró código de verificación en los parámetros:', location.search);
-        console.log('URL completa:', window.location.href);
-        console.log('Parámetros de búsqueda:', location.search);
+        console.log('No verification code found in parameters:', location.search);
+        console.log('Complete URL:', window.location.href);
+        console.log('Search parameters:', location.search);
         setVerificationStatus('error');
-        setErrorMessage('Código de verificación no válido. Verifica que el enlace esté completo.');
+        setErrorMessage('Invalid verification code. Please verify that the link is complete.');
         return;
       }
 
       setLoading(true);
       try {
-        console.log('Intentando verificar código:', oobCode);
-        console.log('URL completa:', window.location.href);
+        console.log('Attempting to verify code:', oobCode);
+        console.log('Complete URL:', window.location.href);
         
         // Verificar el código antes de aplicarlo
         const actionCodeInfo = await checkActionCode(oobCode);
-        console.log('Información del código de acción:', actionCodeInfo);
+        console.log('Action code information:', actionCodeInfo);
         
         if (actionCodeInfo.operation === 'VERIFY_EMAIL') {
           await verifyEmail(oobCode);
           setVerificationStatus('success');
-          toast.success('¡Email verificado exitosamente!');
+          toast.success('Email verified successfully!');
           
-          // Redirigir después de 3 segundos
+          // Redirigir después de 3 segundos - si el usuario ya está autenticado, ir al home
           setTimeout(() => {
-            navigate('/login');
+            if (currentUser) {
+              navigate('/home');
+            } else {
+              navigate('/login');
+            }
           }, 3000);
         } else {
           setVerificationStatus('error');
-          setErrorMessage(`Código de verificación inválido. Operación: ${actionCodeInfo.operation}`);
+          setErrorMessage(`Invalid verification code. Operation: ${actionCodeInfo.operation}`);
         }
       } catch (error: any) {
         console.error('Error verifying email:', error);
@@ -65,15 +69,15 @@ const EmailVerification: React.FC = () => {
         setVerificationStatus('error');
         
         if (error.code === 'auth/invalid-action-code') {
-          setErrorMessage('El código de verificación es inválido o ha expirado. Solicita un nuevo enlace de verificación.');
+          setErrorMessage('The verification code is invalid or has expired. Please request a new verification link.');
         } else if (error.code === 'auth/user-disabled') {
-          setErrorMessage('La cuenta ha sido deshabilitada. Contacta soporte.');
+          setErrorMessage('The account has been disabled. Please contact support.');
         } else if (error.code === 'auth/expired-action-code') {
-          setErrorMessage('El enlace de verificación ha expirado. Solicita un nuevo enlace.');
+          setErrorMessage('The verification link has expired. Please request a new link.');
         } else if (error.code === 'auth/invalid-continue-uri') {
-          setErrorMessage('URL de redirección inválida. Contacta soporte.');
+          setErrorMessage('Invalid redirect URL. Please contact support.');
         } else {
-          setErrorMessage(`Error al verificar el email: ${error.message}`);
+          setErrorMessage(`Error verifying email: ${error.message}`);
         }
       } finally {
         setLoading(false);
@@ -83,7 +87,7 @@ const EmailVerification: React.FC = () => {
     if (oobCode) {
       handleVerification();
     }
-  }, [oobCode, verifyEmail, checkActionCode, navigate, location.search]);
+  }, [oobCode, verifyEmail, checkActionCode, navigate, location.search, currentUser]);
 
   // Mostrar información de debug en desarrollo
   const isDevelopment = process.env.NODE_ENV === 'development';
@@ -95,13 +99,13 @@ const EmailVerification: React.FC = () => {
           <div className="flex justify-center mb-6">
             <RefreshCw className="animate-spin text-blue-500" size={32} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Verificando Email</h1>
-          <p className="text-gray-600">Por favor espera mientras verificamos tu email...</p>
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Verifying Email</h1>
+          <p className="text-gray-600">Please wait while we verify your email...</p>
           
           {isDevelopment && oobCode && (
             <div className="mt-4 p-3 bg-gray-100 rounded text-xs text-gray-600">
-              <p><strong>Debug:</strong> Código encontrado: {oobCode.substring(0, 20)}...</p>
-              <p>Ruta Firebase Auth: {isFirebaseAuthRoute ? 'Sí' : 'No'}</p>
+              <p><strong>Debug:</strong> Code found: {oobCode.substring(0, 20)}...</p>
+              <p>Firebase Auth Route: {isFirebaseAuthRoute ? 'Yes' : 'No'}</p>
               <p>Pathname: {location.pathname}</p>
             </div>
           )}
@@ -120,15 +124,21 @@ const EmailVerification: React.FC = () => {
                 <CheckCircle className="text-green-500" size={32} />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">¡Email Verificado!</h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Email Verified!</h1>
             <p className="text-gray-600 mb-6">
-              Tu dirección de email ha sido verificada exitosamente. Serás redirigido al login en unos segundos.
+              Your email address has been successfully verified. {currentUser ? 'You will be redirected to home in a few seconds.' : 'You will be redirected to login in a few seconds.'}
             </p>
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => {
+                if (currentUser) {
+                  navigate('/home');
+                } else {
+                  navigate('/login');
+                }
+              }}
               className="w-full py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             >
-              Ir al Login
+              {currentUser ? 'Go to Home' : 'Go to Login'}
             </button>
           </>
         ) : verificationStatus === 'error' ? (
@@ -138,50 +148,56 @@ const EmailVerification: React.FC = () => {
                 <AlertCircle className="text-red-500" size={32} />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Error de Verificación</h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Verification Error</h1>
             <p className="text-gray-600 mb-6">{errorMessage}</p>
             
             {isDevelopment && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-xs text-red-700">
                 <p><strong>Debug Info:</strong></p>
                 <p>URL: {location.pathname + location.search}</p>
-                <p>URL Completa: {window.location.href}</p>
-                <p>Parámetros: {location.search}</p>
-                <p>Código encontrado: {oobCode ? 'Sí' : 'No'}</p>
-                {oobCode && <p>Código (primeros 20 chars): {oobCode.substring(0, 20)}...</p>}
+                <p>Complete URL: {window.location.href}</p>
+                <p>Parameters: {location.search}</p>
+                <p>Code found: {oobCode ? 'Yes' : 'No'}</p>
+                {oobCode && <p>Code (first 20 chars): {oobCode.substring(0, 20)}...</p>}
                 <p>User Agent: {navigator.userAgent}</p>
-                <p>Ruta Firebase Auth: {isFirebaseAuthRoute ? 'Sí' : 'No'}</p>
+                <p>Firebase Auth Route: {isFirebaseAuthRoute ? 'Yes' : 'No'}</p>
                 <p>Pathname: {location.pathname}</p>
               </div>
             )}
             
             <div className="space-y-3">
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => {
+                  if (currentUser) {
+                    navigate('/home');
+                  } else {
+                    navigate('/login');
+                  }
+                }}
                 className="w-full py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
               >
-                Ir al Login
+                {currentUser ? 'Go to Home' : 'Go to Login'}
               </button>
               <button
                 onClick={() => navigate('/signup')}
                 className="w-full py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Crear Nueva Cuenta
+                Create New Account
               </button>
               
               {isDevelopment && (
                 <button
                   onClick={() => {
-                    console.log('Información de debug:');
-                    console.log('URL actual:', window.location.href);
+                    console.log('Debug information:');
+                    console.log('Current URL:', window.location.href);
                     console.log('Pathname:', location.pathname);
                     console.log('Search:', location.search);
                     console.log('OobCode:', oobCode);
-                    console.log('Es ruta Firebase Auth:', isFirebaseAuthRoute);
+                    console.log('Is Firebase Auth Route:', isFirebaseAuthRoute);
                   }}
                   className="w-full py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
                 >
-                  Debug Info (ver consola)
+                  Debug Info (check console)
                 </button>
               )}
             </div>
@@ -193,42 +209,47 @@ const EmailVerification: React.FC = () => {
                 <Mail className="text-yellow-500" size={32} />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Verificación de Email</h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Email Verification</h1>
             <p className="text-gray-600 mb-6">
-              No se encontró un código de verificación válido. Por favor, verifica el enlace que recibiste por email.
+              No valid verification code found. Please verify the link you received by email.
             </p>
             
             {isDevelopment && (
               <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
                 <p><strong>Debug Info:</strong></p>
                 <p>URL: {location.pathname + location.search}</p>
-                <p>URL Completa: {window.location.href}</p>
-                <p>Parámetros: {location.search}</p>
-                <p>Ruta Firebase Auth: {isFirebaseAuthRoute ? 'Sí' : 'No'}</p>
+                <p>Complete URL: {window.location.href}</p>
+                <p>Parameters: {location.search}</p>
+                <p>Firebase Auth Route: {isFirebaseAuthRoute ? 'Yes' : 'No'}</p>
                 <p>Pathname: {location.pathname}</p>
               </div>
             )}
             
             <div className="space-y-3">
               <button
-                onClick={() => navigate('/login')}
-                className="w-full py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                onClick={() => {
+                  if (currentUser) {
+                    navigate('/home');
+                  } else {
+                    navigate('/login');
+                  }
+                }}
+                className="w-full py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
               >
-                <ArrowLeft size={16} />
-                Volver al Login
+                {currentUser ? 'Go to Home' : 'Go to Login'}
               </button>
             </div>
           </>
         )}
 
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-left">
-          <h3 className="font-medium text-blue-800 mb-2">💡 Consejos:</h3>
+          <h3 className="font-medium text-blue-800 mb-2">💡 Tips:</h3>
           <ul className="text-sm text-blue-700 space-y-1">
-            <li>• Verifica que el enlace esté completo</li>
-            <li>• Los enlaces de verificación expiran después de 1 hora</li>
-            <li>• Revisa tu carpeta de spam si no encuentras el email</li>
+            <li>• Make sure the link is complete</li>
+            <li>• Verification links expire after 1 hour</li>
+            <li>• Check your spam folder if you can't find the email</li>
             {isDevelopment && (
-              <li>• En desarrollo, revisa la consola para más información de debug</li>
+              <li>• In development, check the console for more debug information</li>
             )}
           </ul>
         </div>

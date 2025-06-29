@@ -73,7 +73,7 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
         // Show success notification with credits deducted
         if (!currentUser.isAdmin) {
           toast.success(
-            `✅ Dispositivo registrado con éxito! -${device.credits} créditos`,
+            `✅ Device registered successfully! -${device.credits} credits`,
             {
               duration: 4000,
               style: {
@@ -89,7 +89,7 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
           );
         } else {
           toast.success(
-            `✅ Dispositivo registrado con éxito!`,
+            `✅ Device registered successfully!`,
             {
               duration: 3000,
               style: {
@@ -103,7 +103,7 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
       } catch (error: any) {
         console.error('Error registering device:', error);
         toast.error(
-          error.message || 'Error al registrar el dispositivo',
+          error.message || 'Error registering device',
           {
             duration: 4000,
             style: {

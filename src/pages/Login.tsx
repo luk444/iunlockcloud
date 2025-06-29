@@ -26,25 +26,25 @@ const Login: React.FC = () => {
       
       await login(email, password);
       
-      toast.success('¡Inicio de sesión exitoso!');
+      toast.success('Login successful!');
       navigate('/');
     } catch (err: any) {
-      console.error('Error en login:', err);
+      console.error('Error in login:', err);
       if (err.message.includes('verify your email') || err.message.includes('verifica tu correo')) {
-        setError('Debes verificar tu dirección de email antes de iniciar sesión. Revisa tu bandeja de entrada.');
+        setError('You must verify your email address before logging in. Check your inbox.');
         setShowResendOption(true);
       } else if (err.code === 'auth/user-not-found') {
-        setError('No se encontró una cuenta con esta dirección de email.');
+        setError('No account found with this email address.');
       } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        setError('Contraseña incorrecta. Intenta de nuevo.');
+        setError('Incorrect password. Please try again.');
       } else if (err.code === 'auth/invalid-email') {
-        setError('Dirección de email inválida.');
+        setError('Invalid email address.');
       } else if (err.code === 'auth/user-disabled') {
-        setError('Esta cuenta ha sido deshabilitada. Contacta soporte.');
+        setError('This account has been disabled. Contact support.');
       } else if (err.code === 'auth/too-many-requests') {
-        setError('Demasiados intentos fallidos. Intenta de nuevo más tarde.');
+        setError('Too many failed attempts. Please try again later.');
       } else {
-        setError('Error al iniciar sesión. Verifica tus credenciales.');
+        setError('Error logging in. Please verify your credentials.');
       }
     } finally {
       setLoading(false);
@@ -53,7 +53,7 @@ const Login: React.FC = () => {
 
   const handleResendVerification = async () => {
     if (!email) {
-      toast.error('Por favor ingresa tu dirección de email primero.');
+      toast.error('Please enter your email address first.');
       return;
     }
 
@@ -79,35 +79,35 @@ const Login: React.FC = () => {
       // Intentar reenviar la verificación
       try {
         await resendVerification();
-        toast.success('Email de verificación enviado. Revisa tu bandeja de entrada.');
+        toast.success('Verification email sent. Check your inbox.');
       } catch (resendError: any) {
-        console.error('Error reenviando verificación:', resendError);
+        console.error('Error resending verification:', resendError);
         
         if (resendError.message.includes('already verified')) {
-          toast.success('Tu email ya está verificado. Intenta iniciar sesión de nuevo.');
+          toast.success('Your email is already verified. Try logging in again.');
         } else if (resendError.message === 'too-many-requests') {
-          toast.error('Demasiadas solicitudes. Intenta de nuevo en unos minutos.');
+          toast.error('Too many requests. Please try again in a few minutes.');
         } else if (resendError.message === 'No user logged in or email already verified') {
-          toast.error('No hay usuario conectado o el email ya está verificado.');
+          toast.error('No user logged in or email already verified.');
         } else {
-          toast.error('Error al enviar el email de verificación. Intenta de nuevo.');
+          toast.error('Error sending verification email. Please try again.');
         }
       }
     } catch (error: any) {
-      console.error('Error en handleResendVerification:', error);
+      console.error('Error in handleResendVerification:', error);
       
       if (error.code === 'auth/user-not-found') {
-        toast.error('No se encontró una cuenta con esta dirección de email.');
+        toast.error('No account found with this email address.');
       } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        toast.error('Contraseña incorrecta. Verifica tus credenciales.');
+        toast.error('Incorrect password. Please verify your credentials.');
       } else if (error.code === 'auth/invalid-email') {
-        toast.error('Dirección de email inválida.');
+        toast.error('Invalid email address.');
       } else if (error.code === 'auth/user-disabled') {
-        toast.error('Esta cuenta ha sido deshabilitada. Contacta soporte.');
+        toast.error('This account has been disabled. Contact support.');
       } else if (error.code === 'auth/too-many-requests') {
-        toast.error('Demasiados intentos fallidos. Intenta de nuevo más tarde.');
+        toast.error('Too many failed attempts. Please try again later.');
       } else {
-        toast.error('Error al procesar la solicitud. Verifica tus credenciales.');
+        toast.error('Error processing request. Please verify your credentials.');
       }
     } finally {
       setResendingVerification(false);
@@ -124,14 +124,14 @@ const Login: React.FC = () => {
               <Shield className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Bienvenido de vuelta</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
           <p className="text-gray-600">
-            ¿No tienes una cuenta?{' '}
+            Don't have an account?{' '}
             <Link 
               to="/signup" 
               className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200"
             >
-              Crea una ahora
+              Create one now
             </Link>
           </p>
         </div>
@@ -153,12 +153,12 @@ const Login: React.FC = () => {
                       {resendingVerification ? (
                         <>
                           <RefreshCw className="animate-spin" size={14} />
-                          Enviando...
+                          Sending...
                         </>
                       ) : (
                         <>
                           <Mail size={14} />
-                          Reenviar email de verificación
+                          Resend verification email
                         </>
                       )}
                     </button>
@@ -173,7 +173,7 @@ const Login: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Dirección de Email
+                  Email Address
                 </label>
                 <input
                   id="email"
@@ -184,13 +184,13 @@ const Login: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                  placeholder="Ingresa tu email"
+                  placeholder="Enter your email"
                 />
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Contraseña
+                  Password
                 </label>
                 <div className="relative">
                   <input
@@ -201,81 +201,70 @@ const Login: React.FC = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                    placeholder="Ingresa tu contraseña"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white pr-12"
+                    placeholder="Enter your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
+              <label className="flex items-center">
                 <input
-                  id="remember_me"
-                  name="remember_me"
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-colors duration-200"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label htmlFor="remember_me" className="ml-3 block text-sm text-gray-700">
-                  Recordarme
-                </label>
-              </div>
-
+                <span className="ml-2 text-sm text-gray-600">Remember me</span>
+              </label>
               <Link
                 to="/forgot-password"
-                className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200"
+                className="text-sm text-blue-600 hover:text-blue-500 transition-colors duration-200"
               >
-                ¿Olvidaste tu contraseña?
+                Forgot password?
               </Link>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-transparent rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98] font-medium shadow-lg"
+              className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
             >
-              <LogIn className="h-5 w-5" />
-              {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+              {loading ? (
+                <>
+                  <RefreshCw className="animate-spin" size={20} />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  <LogIn size={20} />
+                  Sign In
+                </>
+              )}
             </button>
           </form>
 
-          {/* Email Verification Info */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-            <div className="flex items-start">
-              <Mail className="h-5 w-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-700">
-                <p className="font-medium mb-1">Verificación de Email Requerida</p>
-                <p className="leading-relaxed">
-                  Debes verificar tu dirección de email antes de poder iniciar sesión. 
-                  Revisa tu bandeja de entrada para el enlace de verificación.
-                </p>
-              </div>
-            </div>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              By signing in, you agree to our{' '}
+              <a href="#" className="text-blue-600 hover:text-blue-500 transition-colors duration-200">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="#" className="text-blue-600 hover:text-blue-500 transition-colors duration-200">
+                Privacy Policy
+              </a>
+            </p>
           </div>
         </div>
-
-        {/* Footer */}
-        <p className="mt-8 text-center text-sm text-gray-500">
-          Al iniciar sesión, aceptas nuestros{' '}
-          <Link to="/terms" className="text-blue-600 hover:text-blue-500 transition-colors duration-200">
-            Términos de Servicio
-          </Link>{' '}
-          y{' '}
-          <Link to="/privacy" className="text-blue-600 hover:text-blue-500 transition-colors duration-200">
-            Política de Privacidad
-          </Link>
-        </p>
       </div>
     </div>
   );

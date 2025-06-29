@@ -20,7 +20,8 @@ const PrivateRoute: React.FC = () => {
         try {
           await refreshUser();
         } catch (error) {
-          console.error('Error checking email verification:', error);
+          console.error('Error checking email verification status:', error);
+          toast.error('Error checking email verification status. Please try again.');
         }
       }, 5000); // Verificar cada 5 segundos
     }

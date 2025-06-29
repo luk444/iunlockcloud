@@ -23,7 +23,7 @@ const Admin: React.FC = () => {
   
   // Credit management states
   const [userEmail, setUserEmail] = useState('');
-  const [creditAmount, setCreditAmount] = useState('');
+  const [creditAmount, setCreditAmount] = useState<number>(0);
   const [creditAction, setCreditAction] = useState<'add' | 'remove'>('add');
   const [creditLoading, setCreditLoading] = useState(false);
   const [searchedUser, setSearchedUser] = useState<any>(null);
@@ -120,17 +120,13 @@ const Admin: React.FC = () => {
       const payment = payments.find(p => p.id === paymentId);
       if (payment) {
         toast.success(
-          `✅ Pago confirmado! ${payment.credits} créditos agregados a ${payment.userEmail}`,
+          `✅ Payment confirmed! ${payment.credits} credits added to ${payment.userEmail}`,
           {
-            duration: 5000,
+            duration: 4000,
             style: {
-              background: '#059669',
+              background: '#10B981',
               color: 'white',
               fontWeight: '500',
-            },
-            iconTheme: {
-              primary: 'white',
-              secondary: '#059669',
             },
           }
         );
@@ -303,7 +299,7 @@ const Admin: React.FC = () => {
       }
       
       await handleSearchUser();
-      setCreditAmount('');
+      setCreditAmount(0);
     } catch (error) {
       console.error('Error managing credits:', error);
       toast.error(
@@ -547,7 +543,7 @@ const Admin: React.FC = () => {
             }`}
           >
             <Users className="inline mr-2" size={18} />
-            Gestión de Créditos
+            Credit Management
           </button>
           <button
             onClick={() => setActiveTab('iphone-devices')}
@@ -558,7 +554,7 @@ const Admin: React.FC = () => {
             }`}
           >
             <Smartphone className="inline mr-2" size={18} />
-            Dispositivos iPhone
+            iPhone Devices
           </button>
           <button
             onClick={() => setActiveTab('watch-ipad')}
@@ -638,7 +634,7 @@ const Admin: React.FC = () => {
                                 {payment.userEmail}
                               </div>
                               <div className="text-sm text-gray-500">
-                                {payment.credits} créditos
+                                {payment.credits} credits
                               </div>
                             </div>
                           </div>
@@ -817,10 +813,15 @@ const Admin: React.FC = () => {
 
         {/* Credit Management Tab */}
         {activeTab === 'credits' && (
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">Gestión de Créditos</h2>
-              <p className="text-gray-600">Agregar o quitar créditos de las cuentas de usuario</p>
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Smartphone className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Credit Management</h3>
+                <p className="text-gray-600 mt-1">Manage user payment requests and credit addition</p>
+              </div>
             </div>
 
             <div className="space-y-6">
@@ -878,7 +879,7 @@ const Admin: React.FC = () => {
                           className="mr-2"
                         />
                         <Plus size={16} className="text-green-500 mr-1" />
-                        Agregar Créditos
+                        Add Credits
                       </label>
                       <label className="flex items-center">
                         <input
@@ -889,22 +890,21 @@ const Admin: React.FC = () => {
                           className="mr-2"
                         />
                         <Minus size={16} className="text-red-500 mr-1" />
-                        Quitar Créditos
+                        Remove Credits
                       </label>
                     </div>
                   </div>
 
-                  <div>
+                  <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Cantidad de Créditos
+                      Credit Amount
                     </label>
                     <input
                       type="number"
                       value={creditAmount}
-                      onChange={(e) => setCreditAmount(e.target.value)}
-                      min="1"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Ingresa la cantidad"
+                      onChange={(e) => setCreditAmount(Number(e.target.value))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Credit amount"
                     />
                   </div>
 
@@ -927,12 +927,12 @@ const Admin: React.FC = () => {
                         {creditAction === 'add' ? (
                           <>
                             <Plus size={16} className="inline mr-2" />
-                            Agregar {creditAmount} Créditos
+                            Add {creditAmount} Credits
                           </>
                         ) : (
                           <>
                             <Minus size={16} className="inline mr-2" />
-                            Quitar {creditAmount} Créditos
+                            Remove {creditAmount} Credits
                           </>
                         )}
                       </>
@@ -948,8 +948,8 @@ const Admin: React.FC = () => {
         {activeTab === 'iphone-devices' && (
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-800">Dispositivos iPhone</h2>
-              <p className="text-gray-600 mt-1">Gestionar dispositivos iPhone registrados manualmente</p>
+              <h2 className="text-xl font-semibold text-gray-800">iPhone Devices</h2>
+              <p className="text-gray-600 mt-1">Manage manually registered iPhone devices</p>
             </div>
 
             {loading ? (
@@ -970,7 +970,7 @@ const Admin: React.FC = () => {
                         <div>
                           <h3 className="font-medium text-gray-900">{device.modelName}</h3>
                           <p className="text-sm text-gray-500">{device.model}</p>
-                          <p className="text-sm text-blue-600">{device.credits} créditos</p>
+                          <p className="text-sm text-blue-600">{device.credits} credits</p>
                         </div>
                       </div>
                       <div className="text-xs text-gray-500">
@@ -1056,14 +1056,14 @@ const Admin: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Costo en Créditos *
+                        Credit Cost *
                       </label>
                       <input
                         type="number"
                         value={newDevice.credits}
                         onChange={(e) => setNewDevice({...newDevice, credits: Number(e.target.value)})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        min="1"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Credit cost"
                       />
                     </div>
                   </div>
@@ -1094,8 +1094,8 @@ const Admin: React.FC = () => {
               ) : serialDevices.length === 0 ? (
                 <div className="text-center py-20">
                   <Watch className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No hay dispositivos registrados</h3>
-                  <p className="text-gray-600">Agrega dispositivos Apple Watch o iPad para comenzar</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No devices registered</h3>
+                  <p className="text-gray-600">Add Apple Watch or iPad devices to get started</p>
                 </div>
               ) : (
                 <div className="p-6">
@@ -1120,7 +1120,7 @@ const Admin: React.FC = () => {
                                 )}
                                 <span className="text-xs text-blue-600 capitalize">{device.deviceType}</span>
                               </div>
-                              <p className="text-xs text-green-600 font-medium">{device.credits} créditos</p>
+                              <p className="text-xs text-green-600 font-medium">{device.credits} credits</p>
                             </div>
                           </div>
                         </div>
@@ -1200,7 +1200,7 @@ const Admin: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Costo en Créditos
+                        Credit Cost
                       </label>
                       <input
                         type="number"
