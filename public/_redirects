@@ -2,6 +2,9 @@
 # This handles client-side routing by redirecting all routes to index.html
 # except for files that actually exist
 
+# Firebase Auth action URLs
+/__/auth/action /index.html 200
+
 # API routes (if any) - add specific API routes here if needed
 # /api/* /api/:splat 200
 

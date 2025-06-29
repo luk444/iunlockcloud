@@ -18,20 +18,28 @@ const EmailVerification: React.FC = () => {
                   searchParams.get('oobcode') || 
                   searchParams.get('code') ||
                   searchParams.get('actionCode') ||
-                  searchParams.get('action_code');
+                  searchParams.get('action_code') ||
+                  searchParams.get('oobCode') ||
+                  searchParams.get('continueUrl')?.split('oobCode=')[1]?.split('&')[0];
+
+  // Verificar si estamos en la ruta correcta para Firebase Auth
+  const isFirebaseAuthRoute = location.pathname === '/__/auth/action';
 
   useEffect(() => {
     const handleVerification = async () => {
       if (!oobCode) {
         console.log('No se encontró código de verificación en los parámetros:', location.search);
+        console.log('URL completa:', window.location.href);
+        console.log('Parámetros de búsqueda:', location.search);
         setVerificationStatus('error');
-        setErrorMessage('Código de verificación no válido');
+        setErrorMessage('Código de verificación no válido. Verifica que el enlace esté completo.');
         return;
       }
 
       setLoading(true);
       try {
         console.log('Intentando verificar código:', oobCode);
+        console.log('URL completa:', window.location.href);
         
         // Verificar el código antes de aplicarlo
         const actionCodeInfo = await checkActionCode(oobCode);
@@ -52,12 +60,18 @@ const EmailVerification: React.FC = () => {
         }
       } catch (error: any) {
         console.error('Error verifying email:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
         setVerificationStatus('error');
         
         if (error.code === 'auth/invalid-action-code') {
-          setErrorMessage('El código de verificación es inválido o ha expirado');
+          setErrorMessage('El código de verificación es inválido o ha expirado. Solicita un nuevo enlace de verificación.');
         } else if (error.code === 'auth/user-disabled') {
-          setErrorMessage('La cuenta ha sido deshabilitada');
+          setErrorMessage('La cuenta ha sido deshabilitada. Contacta soporte.');
+        } else if (error.code === 'auth/expired-action-code') {
+          setErrorMessage('El enlace de verificación ha expirado. Solicita un nuevo enlace.');
+        } else if (error.code === 'auth/invalid-continue-uri') {
+          setErrorMessage('URL de redirección inválida. Contacta soporte.');
         } else {
           setErrorMessage(`Error al verificar el email: ${error.message}`);
         }
@@ -87,6 +101,8 @@ const EmailVerification: React.FC = () => {
           {isDevelopment && oobCode && (
             <div className="mt-4 p-3 bg-gray-100 rounded text-xs text-gray-600">
               <p><strong>Debug:</strong> Código encontrado: {oobCode.substring(0, 20)}...</p>
+              <p>Ruta Firebase Auth: {isFirebaseAuthRoute ? 'Sí' : 'No'}</p>
+              <p>Pathname: {location.pathname}</p>
             </div>
           )}
         </div>
@@ -129,8 +145,13 @@ const EmailVerification: React.FC = () => {
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-xs text-red-700">
                 <p><strong>Debug Info:</strong></p>
                 <p>URL: {location.pathname + location.search}</p>
+                <p>URL Completa: {window.location.href}</p>
                 <p>Parámetros: {location.search}</p>
                 <p>Código encontrado: {oobCode ? 'Sí' : 'No'}</p>
+                {oobCode && <p>Código (primeros 20 chars): {oobCode.substring(0, 20)}...</p>}
+                <p>User Agent: {navigator.userAgent}</p>
+                <p>Ruta Firebase Auth: {isFirebaseAuthRoute ? 'Sí' : 'No'}</p>
+                <p>Pathname: {location.pathname}</p>
               </div>
             )}
             
@@ -147,6 +168,22 @@ const EmailVerification: React.FC = () => {
               >
                 Crear Nueva Cuenta
               </button>
+              
+              {isDevelopment && (
+                <button
+                  onClick={() => {
+                    console.log('Información de debug:');
+                    console.log('URL actual:', window.location.href);
+                    console.log('Pathname:', location.pathname);
+                    console.log('Search:', location.search);
+                    console.log('OobCode:', oobCode);
+                    console.log('Es ruta Firebase Auth:', isFirebaseAuthRoute);
+                  }}
+                  className="w-full py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
+                >
+                  Debug Info (ver consola)
+                </button>
+              )}
             </div>
           </>
         ) : (
@@ -165,7 +202,10 @@ const EmailVerification: React.FC = () => {
               <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
                 <p><strong>Debug Info:</strong></p>
                 <p>URL: {location.pathname + location.search}</p>
+                <p>URL Completa: {window.location.href}</p>
                 <p>Parámetros: {location.search}</p>
+                <p>Ruta Firebase Auth: {isFirebaseAuthRoute ? 'Sí' : 'No'}</p>
+                <p>Pathname: {location.pathname}</p>
               </div>
             )}
             

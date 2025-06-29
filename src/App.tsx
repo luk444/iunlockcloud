@@ -39,6 +39,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/verify-email" element={<EmailVerification />} />
+            <Route path="/__/auth/action" element={<EmailVerification />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             

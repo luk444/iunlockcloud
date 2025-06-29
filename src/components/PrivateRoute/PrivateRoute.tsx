@@ -74,16 +74,34 @@ const PrivateRoute: React.FC = () => {
   const handleCheckVerification = async () => {
     try {
       setCheckingVerification(true);
+      
+      // Forzar una recarga completa del usuario desde Firebase
       await refreshUser();
       
+      // Verificar nuevamente el estado después de la recarga
       if (currentUser?.emailVerified) {
-        toast.success('Email verified successfully!');
+        toast.success('¡Email verificado exitosamente! Redirigiendo...');
+        // Redirigir después de un breve delay
+        setTimeout(() => {
+          navigate('/');
+        }, 1500);
       } else {
-        toast.error('Email not yet verified. Check your inbox.');
+        // Si aún no está verificado, intentar recargar una vez más
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await refreshUser();
+        
+        if (currentUser?.emailVerified) {
+          toast.success('¡Email verificado exitosamente! Redirigiendo...');
+          setTimeout(() => {
+            navigate('/');
+          }, 1500);
+        } else {
+          toast.error('Email aún no verificado. Verifica que hayas hecho clic en el enlace de verificación.');
+        }
       }
     } catch (error) {
       console.error('Error checking verification:', error);
-      toast.error('Error checking email status.');
+      toast.error('Error al verificar el estado del email. Intenta de nuevo.');
     } finally {
       setCheckingVerification(false);
     }

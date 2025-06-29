@@ -52,37 +52,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchUserData = async (firebaseUser: FirebaseUser, forceRefresh = false) => {
     try {
-      // Si forceRefresh es true, recargamos el usuario de Firebase Auth
-      if (forceRefresh) {
-        await reload(firebaseUser);
-      }
-
       const userRef = doc(db, 'users', firebaseUser.uid);
-      const userDoc = await getDoc(userRef);
+      const userSnap = await getDoc(userRef);
 
       const baseData = {
         uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        displayName: firebaseUser.displayName,
-        emailVerified: firebaseUser.emailVerified,
       };
 
-      if (userDoc.exists()) {
-        const userData = userDoc.data() as Omit<User, 'uid'>;
-        
-        // Actualizamos el estado de verificación en Firestore si ha cambiado
-        if (userData.emailVerified !== firebaseUser.emailVerified) {
-          await updateDoc(userRef, { emailVerified: firebaseUser.emailVerified });
-          userData.emailVerified = firebaseUser.emailVerified;
-        }
-
+      if (userSnap.exists()) {
+        const userData = userSnap.data() as Omit<User, 'uid'>;
         const updatedUser: User = {
-          uid: firebaseUser.uid,
+          ...baseData,
           ...userData,
           email: firebaseUser.email,
           displayName: firebaseUser.displayName,
           emailVerified: firebaseUser.emailVerified,
         };
+        
+        console.log('Actualizando usuario con emailVerified:', firebaseUser.emailVerified);
         setCurrentUser(updatedUser);
         
         if (previousCredits === null) {
@@ -99,6 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         await setDoc(userRef, newUser);
         const fullUser: User = { ...baseData, ...newUser };
+        console.log('Creando nuevo usuario con emailVerified:', firebaseUser.emailVerified);
         setCurrentUser(fullUser);
         setPreviousCredits(0);
       }
@@ -110,11 +98,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const refreshUser = async () => {
     try {
       if (auth.currentUser) {
+        // Forzar recarga del usuario desde Firebase
         await reload(auth.currentUser);
-        await fetchUserData(auth.currentUser, true);
+        
+        // Verificar el estado de verificación de email
+        const refreshedUser = auth.currentUser;
+        console.log('Usuario recargado - emailVerified:', refreshedUser.emailVerified);
+        
+        // Actualizar los datos del usuario
+        await fetchUserData(refreshedUser, true);
+        
+        // Verificar si el estado cambió
+        if (currentUser && currentUser.emailVerified !== refreshedUser.emailVerified) {
+          console.log('Estado de verificación cambió:', currentUser.emailVerified, '->', refreshedUser.emailVerified);
+        }
       }
     } catch (error) {
       console.error('Error refreshing user:', error);
+      throw error;
     }
   };
 
