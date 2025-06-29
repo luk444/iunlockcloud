@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://iunlock-cloud.org/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin
+Disallow: /admin/*
+
+# Allow all other pages
+Allow: /login
+Allow: /signup
+Allow: /checkdevice
+Allow: /unlockdevice
+Allow: /unlockguide
+Allow: /tickets
+Allow: /mydevices 
