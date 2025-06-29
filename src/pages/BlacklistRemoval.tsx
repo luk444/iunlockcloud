@@ -24,7 +24,7 @@ const BlacklistRemoval: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-10 pt-0">
+    <div className="bg-gray-50">
       <main className="max-w-4xl mx-auto px-4 pt-6">
         <BlacklistSearcher onSearch={onSearch} onSelectDevice={onSelectDevice} />
         

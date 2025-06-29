@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, HelpCircle, CreditCard, Smartphone, AlertCircle } from 'lucide-react';
+import { Search, HelpCircle, CreditCard, Smartphone, AlertCircle, Shield, CheckCircle, Clock, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getDeviceByImei } from '../../services/deviceService';
@@ -84,7 +84,7 @@ const ImeiSearcherCheck: React.FC<ImeiSearcherProps> = ({ onSearch, onSelectDevi
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 mt-10 fade-in">
+    <div className="max-w-2xl mx-auto px-4 py-8 mt-4 fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex items-center gap-2 text-blue-500">
           <CreditCard size={20} />
@@ -166,17 +166,59 @@ const ImeiSearcherCheck: React.FC<ImeiSearcherProps> = ({ onSearch, onSelectDevi
         </div>
       )}
 
-      <div className="space-y-4 mt-6">
-        {[
-          "Automatic device detection using advanced API integration",
-          "Support for Apple Watch and iPad serial numbers", 
-          "Real-time device information and pricing",
-          "Join users from over 150 countries in our Client Area!"
-        ].map((text, index) => (
-          <div key={index} className="p-4 bg-blue-50 border border-blue-100 rounded-lg transform transition-all duration-300 hover:scale-102">
-            <p className="text-blue-800 text-sm">{text}</p>
+      <div className="mt-8">
+        <h3 className="text-lg font-semibold text-gray-700 mb-8 text-center">Service Features</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {[
+            {
+              icon: <Smartphone className="text-blue-600" size={20} />,
+              title: "Auto Detection",
+              description: "Advanced API integration for automatic device detection"
+            },
+            {
+              icon: <Shield className="text-green-600" size={20} />,
+              title: "Multi-Device Support",
+              description: "iPhone, Apple Watch and iPad serial numbers"
+            },
+            {
+              icon: <Clock className="text-purple-600" size={20} />,
+              title: "Real-time Info",
+              description: "Instant device information and pricing updates"
+            },
+          ].map((feature, index) => (
+            <div key={index} className="group flex flex-col h-full">
+              <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:border-gray-300 flex flex-col h-full">
+                <div className="flex flex-col items-center text-center mb-4">
+                  <div className="p-3 bg-gray-50 rounded-lg mb-3">
+                    {feature.icon}
+                  </div>
+                  <h4 className="font-medium text-gray-800 text-center">{feature.title}</h4>
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed text-center flex-grow">{feature.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Trust indicators */}
+        <div className="mt-8 max-w-2xl mx-auto">
+          <div className="p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="flex flex-col items-center text-center">
+                <CheckCircle className="text-green-600 mb-2" size={20} />
+                <span className="text-sm font-medium text-gray-700">Instant Results</span>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <Shield className="text-blue-600 mb-2" size={20} />
+                <span className="text-sm font-medium text-gray-700">Secure API</span>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <Star className="text-purple-600 mb-2" size={20} />
+                <span className="text-sm font-medium text-gray-700">Global Access</span>
+              </div>
+            </div>
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );

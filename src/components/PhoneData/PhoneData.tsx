@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Shield, Smartphone, Lock, CheckCircle, X, Watch, Tablet } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Shield, Smartphone, Lock, CheckCircle, X, Watch, Tablet, AlertTriangle, Info } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { registerDevice } from '../../services/deviceService';
 import { registerSerialDevice } from '../../services/serialDeviceService';
@@ -18,6 +19,8 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
   const [showUnlock, setShowUnlock] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const [registering, setRegistering] = useState(false);
+  const [showBlacklistNotification, setShowBlacklistNotification] = useState(false);
+  const [notificationVisible, setNotificationVisible] = useState(false);
   const { currentUser } = useAuth();
   const phoneDataRef = useRef<HTMLDivElement>(null);
 
@@ -129,6 +132,21 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
     setShowUnlock(false);
   };
 
+  const handleBlacklistInfo = () => {
+    setShowBlacklistNotification(true);
+    setNotificationVisible(true);
+    setTimeout(() => {
+      setNotificationVisible(false);
+      setTimeout(() => {
+        setShowBlacklistNotification(false);
+      }, 300);
+    }, 2000);
+  };
+
+  const openEnacom = () => {
+    window.open('https://www.enacom.gob.ar/imei', '_blank');
+  };
+
   const getDeviceIcon = () => {
     if (isSerialDevice(device)) {
       return device.deviceType === 'applewatch' ? 
@@ -187,8 +205,18 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
             </div>
             
             <div className="p-2 bg-green-50 rounded-lg">
-              <p className="text-xs text-gray-500">Blacklist Status</p>
-              <p className="font-medium text-green-600 text-sm">Clean</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500">Blacklist Status</p>
+                  <p className="font-medium text-green-600 text-sm">Clean</p>
+                </div>
+                <button
+                  onClick={handleBlacklistInfo}
+                  className="p-1 text-green-500 hover:text-green-700 transition-colors"
+                >
+                  <AlertTriangle size={16} />
+                </button>
+              </div>
             </div>
 
             <div className="p-2 bg-blue-50 rounded-lg">
@@ -244,6 +272,30 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
             img: device.imageUrl 
           }} />
         </Modal>
+      )}
+
+      {showBlacklistNotification && createPortal(
+        <div className={`fixed top-4 right-4 z-[9999] bg-white border border-green-200 rounded-lg shadow-lg p-3 max-w-sm transition-all duration-300 ${
+          notificationVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+        }`}>
+          <div className="flex items-start gap-2">
+            <Info size={16} className="text-blue-500 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium text-gray-800 mb-1">Blacklist Status Information</p>
+              <p className="text-gray-600 mb-2">
+                This "Clean" status refers to IMEI number 2. To check IMEI number 1, please visit{' '}
+                <button
+                  onClick={openEnacom}
+                  className="text-blue-600 hover:text-blue-800 underline font-medium transition-colors"
+                >
+                  ENACOM
+                </button>{' '}
+                for official verification.
+              </p>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

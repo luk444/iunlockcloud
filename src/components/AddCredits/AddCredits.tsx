@@ -182,7 +182,7 @@ const AddCredits: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-28 pb-10">
+    <div className="bg-gray-50 mt-16">
       <div className="max-w-md mx-auto px-4 pt-8">
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-2 mb-6">

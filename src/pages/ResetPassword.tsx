@@ -104,7 +104,7 @@ const ResetPassword: React.FC = () => {
 
   if (verifying) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-28 flex items-center justify-center px-4">
+      <div className="bg-gray-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-sm p-6 text-center">
           <div className="flex justify-center mb-6">
             <RefreshCw className="animate-spin text-blue-500" size={32} />
@@ -124,7 +124,7 @@ const ResetPassword: React.FC = () => {
 
   if (!validCode) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-28 flex items-center justify-center px-4">
+      <div className="bg-gray-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-sm p-6 text-center">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
@@ -158,7 +158,7 @@ const ResetPassword: React.FC = () => {
 
   if (resetSuccess) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-28 flex items-center justify-center px-4">
+      <div className="bg-gray-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-sm p-6 text-center">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -181,7 +181,7 @@ const ResetPassword: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8 pt-28">
+    <div className="flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8 ">
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">

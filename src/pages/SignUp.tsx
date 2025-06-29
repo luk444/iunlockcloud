@@ -66,7 +66,7 @@ const SignUp: React.FC = () => {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-28 flex items-center justify-center px-4">
+      <div className="bg-gray-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full card fade-in text-center">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -116,7 +116,7 @@ const SignUp: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-28 flex items-center justify-center px-4">
+    <div className="bg-gray-50 pt-28 flex items-center justify-center px-4">
       <div className="max-w-md w-full card fade-in">
         <div className="flex items-center gap-2 mb-6">
           <UserPlus className="text-blue-500" size={24} />

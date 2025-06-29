@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Shield, Smartphone, AlertTriangle, CheckCircle, X, Watch, Tablet } from 'lucide-react';
+import { Shield, Smartphone, AlertTriangle, CheckCircle, X, Watch, Tablet, Info } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { registerDevice } from '../../services/deviceService';
 import { registerSerialDevice } from '../../services/serialDeviceService';
@@ -7,6 +7,7 @@ import { Device, SerialDevice } from '../../types';
 import Modal from '../Modal/Modal';
 import BlacklistRemovalProcess from '../BlacklistRemovalProcess/BlacklistRemovalProcess';
 import toast from 'react-hot-toast';
+import { createPortal } from 'react-dom';
 
 interface BlacklistDeviceDataProps {
   imei: string;
@@ -20,6 +21,8 @@ const BlacklistDeviceData: React.FC<BlacklistDeviceDataProps> = ({ imei, device,
   const [registering, setRegistering] = useState(false);
   const { currentUser } = useAuth();
   const deviceDataRef = useRef<HTMLDivElement>(null);
+  const [showBlacklistNotification, setShowBlacklistNotification] = useState(false);
+  const [notificationVisible, setNotificationVisible] = useState(false);
 
   const isSerialDevice = (dev: Device | SerialDevice): dev is SerialDevice => {
     return 'deviceType' in dev;
@@ -129,6 +132,17 @@ const BlacklistDeviceData: React.FC<BlacklistDeviceDataProps> = ({ imei, device,
     setShowRemoval(false);
   };
 
+  const handleBlacklistInfo = () => {
+    setShowBlacklistNotification(true);
+    setNotificationVisible(true);
+    setTimeout(() => {
+      setNotificationVisible(false);
+      setTimeout(() => {
+        setShowBlacklistNotification(false);
+      }, 300);
+    }, 2000);
+  };
+
   const getDeviceIcon = () => {
     if (isSerialDevice(device)) {
       return device.deviceType === 'applewatch' ? 
@@ -140,6 +154,10 @@ const BlacklistDeviceData: React.FC<BlacklistDeviceDataProps> = ({ imei, device,
 
   const getIdentifierLabel = () => {
     return isSerialDevice(device) ? 'Serial Number' : 'IMEI';
+  };
+
+  const openEnacom = () => {
+    window.open('https://www.enacom.gob.ar/imei', '_blank');
   };
 
   return (
@@ -180,22 +198,18 @@ const BlacklistDeviceData: React.FC<BlacklistDeviceDataProps> = ({ imei, device,
             </div>
           </div>
   
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-2 bg-red-50 rounded-lg">
-              <p className="text-xs text-gray-500">Find My iPhone</p>
-              <p className="font-medium text-red-600 text-sm">ON</p>
-            </div>
-            <div className="p-2 bg-red-50 rounded-lg">
-              <p className="text-xs text-gray-500">Blacklist Status</p>
-              <p className="font-medium text-red-600 text-sm">Reported</p>
-            </div>
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <p className="text-xs text-gray-500">Activation Lock</p>
-              <p className="font-medium text-blue-600 text-sm">Active</p>
-            </div>
-            <div className="p-2 bg-purple-50 rounded-lg">
-              <p className="text-xs text-gray-500">iCloud Status</p>
-              <p className="font-medium text-purple-600 text-sm">Locked</p>
+          <div className="p-2 bg-red-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-gray-500">Blacklist Status</p>
+                <p className="font-medium text-red-600 text-sm">Reported</p>
+              </div>
+              <button
+                onClick={handleBlacklistInfo}
+                className="p-1 text-red-500 hover:text-red-700 transition-colors"
+              >
+                <AlertTriangle size={16} />
+              </button>
             </div>
           </div>
   
@@ -253,6 +267,30 @@ const BlacklistDeviceData: React.FC<BlacklistDeviceDataProps> = ({ imei, device,
             }}
           />
         </Modal>
+      )}
+
+      {showBlacklistNotification && createPortal(
+        <div className={`fixed top-4 right-4 z-[9999] bg-white border border-red-200 rounded-lg shadow-lg p-3 max-w-sm transition-all duration-300 ${
+          notificationVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+        }`}>
+          <div className="flex items-start gap-2">
+            <Info size={16} className="text-blue-500 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium text-gray-800 mb-1">Blacklist Status Information</p>
+              <p className="text-gray-600 mb-2">
+                This "Clean" status refers to IMEI number 2. To check IMEI number 1, please visit{' '}
+                <button
+                  onClick={openEnacom}
+                  className="text-blue-600 hover:text-blue-800 underline font-medium transition-colors"
+                >
+                  ENACOM
+                </button>{' '}
+                for official verification.
+              </p>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );
