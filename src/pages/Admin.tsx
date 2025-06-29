@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Users, CreditCard, Plus, Minus, Mail, Search, AlertCircle, CheckCircle, Smartphone, Watch, Tablet, Edit, Trash2, Eye, Globe, MessageSquare, Clock, X } from 'lucide-react';
+import { Shield, Users, CreditCard, Plus, Minus, Mail, Search, AlertCircle, CheckCircle, Smartphone, Watch, Tablet, Edit, Trash2, Eye, Globe, MessageSquare, Clock, X, Settings, Save, RotateCcw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { paymentService } from '../services/paymentService';
 import { userService } from '../services/userService';
 import { ticketService } from '../services/ticketService';
 import { getAllSerialDevices, addSerialDevice, updateSerialDevice, deleteSerialDevice, addSerialToDevice, removeSerialFromDevice } from '../services/serialDeviceService';
 import { getAllDevices } from '../services/deviceService';
+import { getProcessTimingConfig, updateProcessTimingConfig, resetProcessTimingConfig, ProcessTimingConfig } from '../services/configService';
 import { PaymentRequest, SerialDevice, Device, Ticket } from '../types';
 import toast from 'react-hot-toast';
 
 const Admin: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'payments' | 'credits' | 'iphone-devices' | 'watch-ipad' | 'api-models' | 'tickets'>('payments');
+  const [activeTab, setActiveTab] = useState<'payments' | 'credits' | 'iphone-devices' | 'watch-ipad' | 'api-models' | 'tickets' | 'timing-config'>('payments');
   const [payments, setPayments] = useState<PaymentRequest[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +46,11 @@ const Admin: React.FC = () => {
     credits: 45,
     serialNumbers: [] as string[]
   });
+
+  // Timing configuration states
+  const [timingConfig, setTimingConfig] = useState<ProcessTimingConfig | null>(null);
+  const [timingLoading, setTimingLoading] = useState(false);
+  const [savingConfig, setSavingConfig] = useState(false);
   
   const { currentUser } = useAuth();
 
@@ -57,6 +63,8 @@ const Admin: React.FC = () => {
       loadIPhoneDevices();
     } else if (activeTab === 'tickets') {
       loadTickets();
+    } else if (activeTab === 'timing-config') {
+      loadTimingConfig();
     }
   }, [activeTab]);
 
@@ -109,6 +117,48 @@ const Admin: React.FC = () => {
       toast.error('Failed to load iPhone devices');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadTimingConfig = async () => {
+    try {
+      setTimingLoading(true);
+      const config = await getProcessTimingConfig();
+      setTimingConfig(config);
+    } catch (error) {
+      console.error('Error loading timing config:', error);
+      toast.error('Failed to load timing configuration');
+    } finally {
+      setTimingLoading(false);
+    }
+  };
+
+  const handleSaveTimingConfig = async () => {
+    if (!timingConfig) return;
+    
+    try {
+      setSavingConfig(true);
+      await updateProcessTimingConfig(timingConfig);
+      toast.success('Timing configuration saved successfully');
+    } catch (error) {
+      console.error('Error saving timing config:', error);
+      toast.error('Failed to save timing configuration');
+    } finally {
+      setSavingConfig(false);
+    }
+  };
+
+  const handleResetTimingConfig = async () => {
+    try {
+      setSavingConfig(true);
+      await resetProcessTimingConfig();
+      await loadTimingConfig();
+      toast.success('Timing configuration reset to defaults');
+    } catch (error) {
+      console.error('Error resetting timing config:', error);
+      toast.error('Failed to reset timing configuration');
+    } finally {
+      setSavingConfig(false);
     }
   };
 
@@ -587,6 +637,17 @@ const Admin: React.FC = () => {
           >
             <Globe className="inline mr-2" size={18} />
             Modelos API
+          </button>
+          <button
+            onClick={() => setActiveTab('timing-config')}
+            className={`px-4 py-3 rounded-lg font-medium transition-colors ${
+              activeTab === 'timing-config'
+                ? 'bg-blue-500 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <Settings className="inline mr-2" size={18} />
+            Configuración de Tiempos
           </button>
         </div>
 
@@ -1460,6 +1521,146 @@ const Admin: React.FC = () => {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Timing Configuration Tab */}
+        {activeTab === 'timing-config' && (
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="mb-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800 mb-2">Configuración de Tiempos de Proceso</h2>
+                  <p className="text-gray-600">Configurar tiempos de carga para procesos de desbloqueo iCloud y blacklist</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleResetTimingConfig}
+                    disabled={savingConfig || timingLoading}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <RotateCcw size={16} />
+                    Restablecer
+                  </button>
+                  <button
+                    onClick={handleSaveTimingConfig}
+                    disabled={savingConfig || timingLoading || !timingConfig}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <Save size={16} />
+                    {savingConfig ? 'Guardando...' : 'Guardar'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {timingLoading ? (
+              <div className="flex justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : timingConfig ? (
+              <div className="space-y-6">
+                {/* Configuración General */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-medium text-gray-800 mb-4">Configuración General</h3>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={timingConfig.enabled}
+                        onChange={(e) => setTimingConfig({...timingConfig, enabled: e.target.checked})}
+                        className="mr-2"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Habilitar configuración personalizada</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Tiempos de Desbloqueo iCloud */}
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <h3 className="text-lg font-medium text-blue-800 mb-4">Desbloqueo iCloud</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tiempo mínimo (minutos)
+                      </label>
+                      <input
+                        type="number"
+                        value={timingConfig.unlockMinMinutes}
+                        onChange={(e) => setTimingConfig({...timingConfig, unlockMinMinutes: parseInt(e.target.value) || 5})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        min="1"
+                        max="60"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tiempo máximo (minutos)
+                      </label>
+                      <input
+                        type="number"
+                        value={timingConfig.unlockMaxMinutes}
+                        onChange={(e) => setTimingConfig({...timingConfig, unlockMaxMinutes: parseInt(e.target.value) || 15})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        min="1"
+                        max="60"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tiempos de Blacklist */}
+                <div className="bg-red-50 rounded-lg p-4">
+                  <h3 className="text-lg font-medium text-red-800 mb-4">Remoción de Blacklist</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tiempo mínimo (minutos)
+                      </label>
+                      <input
+                        type="number"
+                        value={timingConfig.blacklistMinMinutes}
+                        onChange={(e) => setTimingConfig({...timingConfig, blacklistMinMinutes: parseInt(e.target.value) || 5})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        min="1"
+                        max="60"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tiempo máximo (minutos)
+                      </label>
+                      <input
+                        type="number"
+                        value={timingConfig.blacklistMaxMinutes}
+                        onChange={(e) => setTimingConfig({...timingConfig, blacklistMaxMinutes: parseInt(e.target.value) || 15})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        min="1"
+                        max="60"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Información de última actualización */}
+                {timingConfig.lastUpdated && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2">
+                      <Clock className="text-gray-500" size={16} />
+                      <span className="text-sm text-gray-600">
+                        Última actualización: {formatDate(timingConfig.lastUpdated)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-20">
+                <Settings className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Error al cargar configuración</h3>
+                <p className="text-gray-600">No se pudo cargar la configuración de tiempos</p>
+              </div>
+            )}
           </div>
         )}
       </div>

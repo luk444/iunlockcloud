@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ticketService } from '../../services/ticketService';
 import { updateDeviceUnlockResult } from '../../services/deviceService';
 import { updateSerialDeviceUnlockResult } from '../../services/serialDeviceService';
+import { useProcessTiming } from '../../hooks/useProcessTiming';
 
 interface DeviceInfo {
   model: string;
@@ -26,32 +27,55 @@ const UnlockFMI: React.FC<UnlockFMIProps> = ({ deviceInfo }) => {
   const [ticketText, setTicketText] = useState('');
   const [ticketSubmitted, setTicketSubmitted] = useState(false);
   const { currentUser } = useAuth();
+  const { getRandomTime, getStepDistribution } = useProcessTiming();
 
   const handleUnlock = () => {
     setLoadMessage("Encrypting activation token");
     
+    // Generar tiempo total aleatorio entre 5-15 minutos
+    const totalTime = getRandomTime('unlock');
+    const distribution = getStepDistribution('unlock', 1);
+    
+    // Dividir el tiempo en pasos proporcionales
+    const step1Time = Math.floor(totalTime * (distribution.step1 / 100));
+    const step2Time = Math.floor(totalTime * (distribution.step2 / 100));
+    const step3Time = Math.floor(totalTime * (distribution.step3 / 100));
+    const step4Time = Math.floor(totalTime * (distribution.step4 / 100));
+    
     const steps = [
-      { message: "Connecting with server", delay: 4000 },
-      { message: "Sending token", delay: 8000 },
-      { message: "Waiting for confirmation", delay: 8000 },
-      { action: () => { setLoadMessage(null); setSecondMsg(true); }, delay: 15000 }
+      { message: "Connecting with server", delay: step1Time },
+      { message: "Sending token", delay: step2Time },
+      { message: "Waiting for confirmation", delay: step3Time },
+      { action: () => { setLoadMessage(null); setSecondMsg(true); }, delay: step4Time }
     ];
     
+    let currentDelay = 0;
     steps.forEach(step => {
+      currentDelay += step.delay;
       setTimeout(() => {
         if (step.message) setLoadMessage(step.message);
         if (step.action) step.action();
-      }, step.delay);
+      }, currentDelay);
     });
   };
 
   const handleSecondMessage = () => {
     setLoadMessage("Establishing Connection");
     
+    // Generar tiempo total aleatorio entre 5-15 minutos para la segunda fase
+    const totalTime = getRandomTime('unlock');
+    const distribution = getStepDistribution('unlock', 2);
+    
+    // Dividir el tiempo en pasos proporcionales
+    const step1Time = Math.floor(totalTime * (distribution.step1 / 100));
+    const step2Time = Math.floor(totalTime * (distribution.step2 / 100));
+    const step3Time = Math.floor(totalTime * (distribution.step3 / 100));
+    const step4Time = Math.floor(totalTime * (distribution.step4 / 100));
+    
     const steps = [
-      { message: "Waiting for confirmation from the network", delay: 4000 },
-      { message: "Server data validation", delay: 8000 },
-      { message: "Waiting for server confirmation", delay: 9000 },
+      { message: "Waiting for confirmation from the network", delay: step1Time },
+      { message: "Server data validation", delay: step2Time },
+      { message: "Waiting for server confirmation", delay: step3Time },
       { action: () => { 
         setLoadMessage(null); 
         setSecondMsg(false); 
@@ -63,14 +87,16 @@ const UnlockFMI: React.FC<UnlockFMIProps> = ({ deviceInfo }) => {
             updateDeviceUnlockResult(currentUser.uid, deviceInfo.deviceId, 'token_denied');
           }
         }
-      }, delay: 15000 }
+      }, delay: step4Time }
     ];
     
+    let currentDelay = 0;
     steps.forEach(step => {
+      currentDelay += step.delay;
       setTimeout(() => {
         if (step.message) setLoadMessage(step.message);
         if (step.action) step.action();
-      }, step.delay);
+      }, currentDelay);
     });
   };
 

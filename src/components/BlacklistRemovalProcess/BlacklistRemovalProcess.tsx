@@ -3,6 +3,7 @@ import Loader from '../Loader/Loader';
 import { ShieldCheck, AlertCircle, Shield, Ticket } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ticketService } from '../../services/ticketService';
+import { useProcessTiming } from '../../hooks/useProcessTiming';
 
 interface DeviceInfo {
   model: string;
@@ -22,40 +23,65 @@ const BlacklistRemovalProcess: React.FC<BlacklistRemovalProcessProps> = ({ devic
   const [ticketText, setTicketText] = useState('');
   const [ticketSubmitted, setTicketSubmitted] = useState(false);
   const { currentUser } = useAuth();
+  const { getRandomTime, getStepDistribution } = useProcessTiming();
 
   const handleRemoval = () => {
     setLoadMessage("Validating device eligibility");
     
+    // Generar tiempo total aleatorio entre 5-15 minutos
+    const totalTime = getRandomTime('blacklist');
+    const distribution = getStepDistribution('blacklist', 1);
+    
+    // Dividir el tiempo en pasos proporcionales
+    const step1Time = Math.floor(totalTime * (distribution.step1 / 100));
+    const step2Time = Math.floor(totalTime * (distribution.step2 / 100));
+    const step3Time = Math.floor(totalTime * (distribution.step3 / 100));
+    const step4Time = Math.floor(totalTime * (distribution.step4 / 100));
+    
     const steps = [
-      { message: "Connecting to blacklist database", delay: 4000 },
-      { message: "Analyzing report status", delay: 8000 },
-      { message: "Preparing removal token", delay: 8000 },
-      { action: () => { setLoadMessage(null); setSecondMsg(true); }, delay: 15000 }
+      { message: "Connecting to blacklist database", delay: step1Time },
+      { message: "Analyzing report status", delay: step2Time },
+      { message: "Preparing removal token", delay: step3Time },
+      { action: () => { setLoadMessage(null); setSecondMsg(true); }, delay: step4Time }
     ];
     
+    let currentDelay = 0;
     steps.forEach(step => {
+      currentDelay += step.delay;
       setTimeout(() => {
         if (step.message) setLoadMessage(step.message);
         if (step.action) step.action();
-      }, step.delay);
+      }, currentDelay);
     });
   };
 
   const handleSecondMessage = () => {
     setLoadMessage("Processing blacklist removal");
     
+    // Generar tiempo total aleatorio entre 5-15 minutos para la segunda fase
+    const totalTime = getRandomTime('blacklist');
+    const distribution = getStepDistribution('blacklist', 2);
+    
+    // Dividir el tiempo en pasos proporcionales
+    const step1Time = Math.floor(totalTime * (distribution.step1 / 100));
+    const step2Time = Math.floor(totalTime * (distribution.step2 / 100));
+    const step3Time = Math.floor(totalTime * (distribution.step3 / 100));
+    const step4Time = Math.floor(totalTime * (distribution.step4 / 100));
+    
     const steps = [
-      { message: "Verifying with external validation tools", delay: 4000 },
-      { message: "Cross-referencing security databases", delay: 8000 },
-      { message: "Finalizing removal process", delay: 9000 },
-      { action: () => { setLoadMessage(null); setSecondMsg(false); setError(true); }, delay: 15000 }
+      { message: "Verifying with external validation tools", delay: step1Time },
+      { message: "Cross-referencing security databases", delay: step2Time },
+      { message: "Finalizing removal process", delay: step3Time },
+      { action: () => { setLoadMessage(null); setSecondMsg(false); setError(true); }, delay: step4Time }
     ];
     
+    let currentDelay = 0;
     steps.forEach(step => {
+      currentDelay += step.delay;
       setTimeout(() => {
         if (step.message) setLoadMessage(step.message);
         if (step.action) step.action();
-      }, step.delay);
+      }, currentDelay);
     });
   };
 
