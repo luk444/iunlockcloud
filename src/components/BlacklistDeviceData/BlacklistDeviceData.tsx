@@ -75,7 +75,7 @@ const BlacklistDeviceData: React.FC<BlacklistDeviceDataProps> = ({ imei, device,
       // Show success notification with credits deducted
       if (!currentUser.isAdmin) {
         toast.success(
-          `✅ Device registered for blacklist removal! -${device.credits} credits`,
+          `Device registered for blacklist removal! -${device.credits} credits`,
           {
             duration: 4000,
             style: {
@@ -91,7 +91,7 @@ const BlacklistDeviceData: React.FC<BlacklistDeviceDataProps> = ({ imei, device,
         );
       } else {
         toast.success(
-          `✅ Device registered for blacklist removal!`,
+          `Device registered for blacklist removal!`,
           {
             duration: 3000,
             style: {

@@ -79,7 +79,7 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
       // Show success notification with credits deducted
       if (!currentUser.isAdmin) {
         toast.success(
-          `✅ Device registered successfully! -${device.credits} credits`,
+          `Device registered successfully! -${device.credits} credits`,
           {
             duration: 4000,
             style: {
@@ -95,7 +95,7 @@ const PhoneData: React.FC<PhoneDataProps> = ({ imei, device, onClose }) => {
         );
       } else {
         toast.success(
-          `✅ Device registered successfully!`,
+          `Device registered successfully!`,
           {
             duration: 3000,
             style: {

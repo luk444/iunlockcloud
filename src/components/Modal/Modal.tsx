@@ -13,14 +13,14 @@ const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-gray-900 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden animate-fadeIn">
+      <div className="relative bg-gray-900 rounded-xl shadow-xl max-w-md w-full max-h-[98vh] overflow-hidden animate-fadeIn">
         <button 
           onClick={onClose}
           className="absolute top-3 right-3 z-10 p-1 text-gray-400 hover:text-white transition-colors bg-gray-800/50 rounded-full"
         >
           <X size={18} />
         </button>
-        <div className="overflow-y-auto max-h-[90vh]">
+        <div className="overflow-y-auto max-h-[98vh]">
           {children}
         </div>
       </div>
