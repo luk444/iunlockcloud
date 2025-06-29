@@ -85,7 +85,7 @@ const ImeiSearcherCheck: React.FC<ImeiSearcherProps> = ({ onSearch, onSelectDevi
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 mt-10 fade-in">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex items-center gap-2 text-blue-500">
           <CreditCard size={20} />
           <span className="font-semibold">
