@@ -3,8 +3,22 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --live-feed-height: 40px;
+    --navbar-height: 64px;
+    --total-header-height: calc(var(--live-feed-height) + var(--navbar-height));
+  }
+
   body {
     @apply font-sans text-gray-800 antialiased;
+    padding-top: var(--total-header-height);
+  }
+
+  /* Ajustar el padding-top para diferentes tamaños de pantalla */
+  @media (min-width: 640px) {
+    :root {
+      --live-feed-height: 48px;
+    }
   }
 }
 

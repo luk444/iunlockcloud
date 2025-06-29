@@ -18,6 +18,9 @@ import Admin from './pages/Admin';
 import AdminRoute from './components/AdminRoute/AdminRoute';
 import NotFound from './pages/NotFound';
 import AddCredits from './components/AddCredits/AddCredits';
+import EmailVerification from './pages/EmailVerification';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
@@ -35,6 +38,9 @@ function App() {
             <Route path="/guide" element={<UnlockGuide />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/verify-email" element={<EmailVerification />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             
             {/* Protected routes */}
             <Route element={<PrivateRoute />}>

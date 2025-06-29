@@ -26,25 +26,25 @@ const Login: React.FC = () => {
       
       await login(email, password);
       
-      toast.success('Login successful!');
+      toast.success('¡Inicio de sesión exitoso!');
       navigate('/');
     } catch (err: any) {
-      console.error(err);
+      console.error('Error en login:', err);
       if (err.message.includes('verify your email') || err.message.includes('verifica tu correo')) {
-        setError('You must verify your email address before signing in. Please check your inbox.');
+        setError('Debes verificar tu dirección de email antes de iniciar sesión. Revisa tu bandeja de entrada.');
         setShowResendOption(true);
       } else if (err.code === 'auth/user-not-found') {
-        setError('No account found with this email address.');
+        setError('No se encontró una cuenta con esta dirección de email.');
       } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        setError('Incorrect password. Please try again.');
+        setError('Contraseña incorrecta. Intenta de nuevo.');
       } else if (err.code === 'auth/invalid-email') {
-        setError('Invalid email address.');
+        setError('Dirección de email inválida.');
       } else if (err.code === 'auth/user-disabled') {
-        setError('This account has been disabled. Please contact support.');
+        setError('Esta cuenta ha sido deshabilitada. Contacta soporte.');
       } else if (err.code === 'auth/too-many-requests') {
-        setError('Too many failed attempts. Please try again later.');
+        setError('Demasiados intentos fallidos. Intenta de nuevo más tarde.');
       } else {
-        setError('Failed to sign in. Please check your credentials.');
+        setError('Error al iniciar sesión. Verifica tus credenciales.');
       }
     } finally {
       setLoading(false);
@@ -53,32 +53,61 @@ const Login: React.FC = () => {
 
   const handleResendVerification = async () => {
     if (!email) {
-      toast.error('Please enter your email address first.');
+      toast.error('Por favor ingresa tu dirección de email primero.');
       return;
     }
 
     try {
       setResendingVerification(true);
       
-      // Attempt to login only to get the current user
-      await login(email, password);
-    } catch (loginError: any) {
-      if (loginError.message.includes('verify your email')) {
-        try {
-          await resendVerification();
-          toast.success('Verification email sent. Please check your inbox.');
-        } catch (resendError: any) {
-          console.error(resendError);
-          if (resendError.message.includes('already verified')) {
-            toast.success('Email is already verified. Please try signing in again.');
-          } else if (resendError.message === 'too-many-requests') {
-            toast.error('Too many requests. Please try again in a few minutes.');
-          } else {
-            toast.error('Failed to send verification email. Please try again.');
-          }
+      // Intentar reenviar la verificación directamente
+      // Primero necesitamos verificar si el usuario existe y no está verificado
+      try {
+        // Intentar hacer login para obtener el usuario actual
+        await login(email, password);
+      } catch (loginError: any) {
+        // Si el login falla por verificación de email, continuamos
+        if (loginError.message.includes('verify your email') || 
+            loginError.message.includes('verifica tu correo')) {
+          // El usuario existe pero no está verificado, podemos reenviar
+        } else {
+          // Otro tipo de error de login
+          throw loginError;
         }
+      }
+
+      // Intentar reenviar la verificación
+      try {
+        await resendVerification();
+        toast.success('Email de verificación enviado. Revisa tu bandeja de entrada.');
+      } catch (resendError: any) {
+        console.error('Error reenviando verificación:', resendError);
+        
+        if (resendError.message.includes('already verified')) {
+          toast.success('Tu email ya está verificado. Intenta iniciar sesión de nuevo.');
+        } else if (resendError.message === 'too-many-requests') {
+          toast.error('Demasiadas solicitudes. Intenta de nuevo en unos minutos.');
+        } else if (resendError.message === 'No user logged in or email already verified') {
+          toast.error('No hay usuario conectado o el email ya está verificado.');
+        } else {
+          toast.error('Error al enviar el email de verificación. Intenta de nuevo.');
+        }
+      }
+    } catch (error: any) {
+      console.error('Error en handleResendVerification:', error);
+      
+      if (error.code === 'auth/user-not-found') {
+        toast.error('No se encontró una cuenta con esta dirección de email.');
+      } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        toast.error('Contraseña incorrecta. Verifica tus credenciales.');
+      } else if (error.code === 'auth/invalid-email') {
+        toast.error('Dirección de email inválida.');
+      } else if (error.code === 'auth/user-disabled') {
+        toast.error('Esta cuenta ha sido deshabilitada. Contacta soporte.');
+      } else if (error.code === 'auth/too-many-requests') {
+        toast.error('Demasiados intentos fallidos. Intenta de nuevo más tarde.');
       } else {
-        toast.error('Error processing request. Please verify your credentials.');
+        toast.error('Error al procesar la solicitud. Verifica tus credenciales.');
       }
     } finally {
       setResendingVerification(false);
@@ -95,14 +124,14 @@ const Login: React.FC = () => {
               <Shield className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Bienvenido de vuelta</h2>
           <p className="text-gray-600">
-            Don't have an account?{' '}
+            ¿No tienes una cuenta?{' '}
             <Link 
               to="/signup" 
               className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200"
             >
-              Create one now
+              Crea una ahora
             </Link>
           </p>
         </div>
@@ -124,12 +153,12 @@ const Login: React.FC = () => {
                       {resendingVerification ? (
                         <>
                           <RefreshCw className="animate-spin" size={14} />
-                          Sending...
+                          Enviando...
                         </>
                       ) : (
                         <>
                           <Mail size={14} />
-                          Resend verification email
+                          Reenviar email de verificación
                         </>
                       )}
                     </button>
@@ -144,7 +173,7 @@ const Login: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email address
+                  Dirección de Email
                 </label>
                 <input
                   id="email"
@@ -155,13 +184,13 @@ const Login: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                  placeholder="Enter your email"
+                  placeholder="Ingresa tu email"
                 />
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
+                  Contraseña
                 </label>
                 <div className="relative">
                   <input
@@ -173,7 +202,7 @@ const Login: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                    placeholder="Enter your password"
+                    placeholder="Ingresa tu contraseña"
                   />
                   <button
                     type="button"
@@ -198,7 +227,7 @@ const Login: React.FC = () => {
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-colors duration-200"
                 />
                 <label htmlFor="remember_me" className="ml-3 block text-sm text-gray-700">
-                  Remember me
+                  Recordarme
                 </label>
               </div>
 
@@ -206,7 +235,7 @@ const Login: React.FC = () => {
                 to="/forgot-password"
                 className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200"
               >
-                Forgot password?
+                ¿Olvidaste tu contraseña?
               </Link>
             </div>
 
@@ -217,7 +246,7 @@ const Login: React.FC = () => {
               className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-transparent rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98] font-medium shadow-lg"
             >
               <LogIn className="h-5 w-5" />
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
             </button>
           </form>
 
@@ -226,10 +255,10 @@ const Login: React.FC = () => {
             <div className="flex items-start">
               <Mail className="h-5 w-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-blue-700">
-                <p className="font-medium mb-1">Email Verification Required</p>
+                <p className="font-medium mb-1">Verificación de Email Requerida</p>
                 <p className="leading-relaxed">
-                  You must verify your email address before you can sign in. 
-                  Please check your inbox for the verification link.
+                  Debes verificar tu dirección de email antes de poder iniciar sesión. 
+                  Revisa tu bandeja de entrada para el enlace de verificación.
                 </p>
               </div>
             </div>
@@ -238,13 +267,13 @@ const Login: React.FC = () => {
 
         {/* Footer */}
         <p className="mt-8 text-center text-sm text-gray-500">
-          By signing in, you agree to our{' '}
+          Al iniciar sesión, aceptas nuestros{' '}
           <Link to="/terms" className="text-blue-600 hover:text-blue-500 transition-colors duration-200">
-            Terms of Service
+            Términos de Servicio
           </Link>{' '}
-          and{' '}
+          y{' '}
           <Link to="/privacy" className="text-blue-600 hover:text-blue-500 transition-colors duration-200">
-            Privacy Policy
+            Política de Privacidad
           </Link>
         </p>
       </div>

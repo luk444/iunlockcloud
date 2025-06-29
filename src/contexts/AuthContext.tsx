@@ -6,7 +6,11 @@ import {
   signOut,
   onAuthStateChanged,
   sendEmailVerification,
-  reload
+  reload,
+  sendPasswordResetEmail,
+  confirmPasswordReset,
+  applyActionCode,
+  checkActionCode
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
@@ -21,6 +25,10 @@ interface AuthContextType {
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   resendVerification: () => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<void>;
+  confirmPasswordReset: (oobCode: string, newPassword: string) => Promise<void>;
+  verifyEmail: (oobCode: string) => Promise<void>;
+  checkActionCode: (oobCode: string) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,7 +76,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           userData.emailVerified = firebaseUser.emailVerified;
         }
 
-        const updatedUser: User = { ...baseData, ...userData };
+        const updatedUser: User = {
+          uid: firebaseUser.uid,
+          ...userData,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          emailVerified: firebaseUser.emailVerified,
+        };
         setCurrentUser(updatedUser);
         
         if (previousCredits === null) {
@@ -108,7 +122,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       if (auth.currentUser && !auth.currentUser.emailVerified) {
         await sendEmailVerification(auth.currentUser, {
-          url: `${window.location.origin}/login`,
+          url: `${window.location.origin}/verify-email`,
           handleCodeInApp: false,
         });
       } else {
@@ -140,11 +154,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const userData = docSnap.data() as Omit<User, 'uid'>;
             const updatedUser: User = {
               uid: user.uid,
+              ...userData,
               email: user.email,
               displayName: user.displayName,
-              emailVerified: user.emailVerified, // Siempre usar el estado de Firebase Auth
-              ...userData,
-              emailVerified: user.emailVerified, // Sobrescribir con el valor de Firebase Auth
+              emailVerified: user.emailVerified,
             };
 
             // Detectar cambios de créditos para mostrar notificaciones
@@ -203,7 +216,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const result = await createUserWithEmailAndPassword(auth, email, password);
 
     await sendEmailVerification(result.user, {
-      url: `${window.location.origin}/login`,
+      url: `${window.location.origin}/verify-email`,
       handleCodeInApp: false,
     });
 
@@ -227,6 +240,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await signOut(auth);
   };
 
+  const sendPasswordReset = async (email: string) => {
+    await sendPasswordResetEmail(auth, email, {
+      url: `${window.location.origin}/reset-password`,
+      handleCodeInApp: false,
+    });
+  };
+
+  const confirmPasswordResetAction = async (oobCode: string, newPassword: string) => {
+    await confirmPasswordReset(auth, oobCode, newPassword);
+  };
+
+  const verifyEmailAction = async (oobCode: string) => {
+    await applyActionCode(auth, oobCode);
+  };
+
+  const checkActionCodeAction = async (oobCode: string) => {
+    return await checkActionCode(auth, oobCode);
+  };
+
   const value: AuthContextType = {
     currentUser,
     loading,
@@ -235,6 +267,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     refreshUser,
     resendVerification,
+    sendPasswordReset,
+    confirmPasswordReset: confirmPasswordResetAction,
+    verifyEmail: verifyEmailAction,
+    checkActionCode: checkActionCodeAction,
   };
 
   return (

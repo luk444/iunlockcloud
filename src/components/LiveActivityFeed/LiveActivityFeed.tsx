@@ -119,17 +119,43 @@ const LiveActivityFeed: React.FC = () => {
   if (!currentActivity) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 text-white py-3 px-4 shadow-sm border-b border-green-400">
-      <div className="max-w-6xl mx-auto">
-        <div className={`flex items-center justify-center gap-2 transition-all duration-300 ${isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-2'}`}>
-          <CheckCircle size={16} className="text-green-200 animate-pulse" />
-          <div className="flex items-center gap-1.5 text-sm font-medium">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 text-white shadow-sm border-b border-green-400" style={{ height: 'var(--live-feed-height)' }}>
+      <div className="max-w-6xl mx-auto h-full px-3 sm:px-4">
+        <div className={`flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-300 h-full ${isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-2'}`}>
+          <CheckCircle size={12} className="text-green-200 animate-pulse flex-shrink-0" />
+          
+          {/* Desktop version */}
+          <div className="hidden sm:flex items-center gap-1.5 text-sm font-medium">
             <span className="font-bold text-green-100">{currentActivity.username}</span>
             <span className="text-green-50">just successfully registered</span>
             {getDeviceIcon(currentActivity.icon)}
             <span className="font-bold text-green-100">{currentActivity.device}</span>
             <span className="text-green-300">•</span>
             <span className="text-green-200 text-xs">
+              {currentActivity.timestamp.toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
+            </span>
+          </div>
+
+          {/* Mobile version */}
+          <div className="sm:hidden flex items-center gap-1.5 text-xs font-medium">
+            <span className="font-bold text-green-100 truncate max-w-[60px]">{currentActivity.username}</span>
+            <span className="text-green-50 text-[10px]">registered</span>
+            {getDeviceIcon(currentActivity.icon)}
+            <span className="font-bold text-green-100 truncate max-w-[80px] text-[10px]">
+              {currentActivity.device.includes('iPhone') 
+                ? currentActivity.device.replace('iPhone ', '') 
+                : currentActivity.device.includes('Apple Watch') 
+                ? currentActivity.device.replace('Apple Watch ', '') 
+                : currentActivity.device.includes('iPad') 
+                ? currentActivity.device.replace('iPad ', '') 
+                : currentActivity.device
+              }
+            </span>
+            <span className="text-green-300 text-[10px]">•</span>
+            <span className="text-green-200 text-[10px]">
               {currentActivity.timestamp.toLocaleTimeString([], { 
                 hour: '2-digit', 
                 minute: '2-digit' 
