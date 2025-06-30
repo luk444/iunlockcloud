@@ -18,7 +18,8 @@ export const paymentService = {
     userId: string, 
     userEmail: string, 
     amount: number, 
-    walletAddress: string
+    walletAddress: string,
+    paymentMethod: 'usdt' | 'kofi' = 'usdt'
   ): Promise<string> {
     try {
       // Verificar si ya tiene un pago pendiente
@@ -38,6 +39,7 @@ export const paymentService = {
         amount,
         credits,
         walletAddress,
+        paymentMethod,
         status: 'pending' as const,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now()
@@ -71,6 +73,7 @@ export const paymentService = {
           amount: data.amount,
           credits: data.credits,
           walletAddress: data.walletAddress,
+          paymentMethod: data.paymentMethod || 'usdt',
           status: data.status,
           transactionId: data.transactionId,
           rejectionReason: data.rejectionReason,
@@ -108,6 +111,7 @@ export const paymentService = {
           amount: data.amount,
           credits: data.credits,
           walletAddress: data.walletAddress,
+          paymentMethod: data.paymentMethod || 'usdt',
           status: data.status,
           transactionId: data.transactionId,
           rejectionReason: data.rejectionReason,
@@ -196,6 +200,7 @@ export const paymentService = {
           amount: data.amount,
           credits: data.credits,
           walletAddress: data.walletAddress,
+          paymentMethod: data.paymentMethod || 'usdt',
           status: data.status,
           transactionId: data.transactionId,
           rejectionReason: data.rejectionReason,

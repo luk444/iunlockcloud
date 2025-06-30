@@ -65,6 +65,7 @@ export interface PaymentRequest {
   userEmail: string;
   amount: number;
   walletAddress: string;
+  paymentMethod?: 'usdt' | 'kofi';
   status: 'pending' | 'completed' | 'rejected';
   transactionId?: string;
   rejectionReason?: string;

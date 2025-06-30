@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Users, CreditCard, Plus, Minus, Mail, Search, AlertCircle, CheckCircle, Smartphone, Watch, Tablet, Edit, Trash2, Eye, Globe, MessageSquare, Clock, X, Settings, Save, RotateCcw } from 'lucide-react';
+import { Shield, Users, CreditCard, Plus, Minus, Mail, Search, AlertCircle, CheckCircle, Smartphone, Watch, Tablet, Edit, Trash2, Eye, Globe, MessageSquare, Clock, X, Settings, Save, RotateCcw, Coffee, DollarSign } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { paymentService } from '../services/paymentService';
 import { userService } from '../services/userService';
@@ -165,24 +165,33 @@ const Admin: React.FC = () => {
   const handleConfirmPayment = async (paymentId: string) => {
     try {
       setProcessingPayment(paymentId);
-      await paymentService.confirmPayment(paymentId, 'manual-confirmation');
       
+      // Find the payment to get its details
       const payment = payments.find(p => p.id === paymentId);
-      if (payment) {
-        toast.success(
-          `✅ Payment confirmed! ${payment.credits} credits added to ${payment.userEmail}`,
-          {
-            duration: 4000,
-            style: {
-              background: '#10B981',
-              color: 'white',
-              fontWeight: '500',
-            },
-          }
-        );
-      } else {
-        toast.success('Payment confirmed successfully');
+      if (!payment) {
+        throw new Error('Payment not found');
       }
+
+      // For Ko-fi payments, we might want to add additional verification
+      if (payment.paymentMethod === 'kofi') {
+        // You could add additional verification steps here
+        // For example, checking if the user has provided proof of payment
+        console.log('Confirming Ko-fi payment:', payment);
+      }
+
+      await paymentService.confirmPayment(paymentId, payment.paymentMethod === 'kofi' ? 'ko-fi-confirmation' : 'manual-confirmation');
+      
+      toast.success(
+        `✅ Payment confirmed! ${payment.credits} credits added to ${payment.userEmail}`,
+        {
+          duration: 4000,
+          style: {
+            background: '#10B981',
+            color: 'white',
+            fontWeight: '500',
+          },
+        }
+      );
       
       await loadPayments();
     } catch (error) {
@@ -657,6 +666,54 @@ const Admin: React.FC = () => {
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-xl font-semibold text-gray-800">Solicitudes de Pago</h2>
               <p className="text-gray-600 mt-1">Gestionar solicitudes de pago de usuarios y adición de créditos</p>
+              
+              {/* Payment Statistics */}
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <div className="text-sm text-blue-600 font-medium">Total Pending</div>
+                  <div className="text-2xl font-bold text-blue-900">
+                    {payments.filter(p => p.status === 'pending').length}
+                  </div>
+                </div>
+                <div className="bg-green-50 p-3 rounded-lg">
+                  <div className="text-sm text-green-600 font-medium">USDT Pending</div>
+                  <div className="text-2xl font-bold text-green-900">
+                    {payments.filter(p => p.status === 'pending' && p.paymentMethod === 'usdt').length}
+                  </div>
+                </div>
+                <div className="bg-orange-50 p-3 rounded-lg">
+                  <div className="text-sm text-orange-600 font-medium">Ko-fi Pending</div>
+                  <div className="text-2xl font-bold text-orange-900">
+                    {payments.filter(p => p.status === 'pending' && p.paymentMethod === 'kofi').length}
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="text-sm text-gray-600 font-medium">Completed Today</div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {payments.filter(p => p.status === 'completed' && 
+                      new Date(p.confirmedAt?.seconds * 1000).toDateString() === new Date().toDateString()
+                    ).length}
+                  </div>
+                </div>
+              </div>
+
+              {/* Ko-fi Payment Instructions */}
+              {payments.some(p => p.status === 'pending' && p.paymentMethod === 'kofi') && (
+                <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                  <div className="flex items-start">
+                    <Coffee className="h-5 w-5 text-orange-600 mt-0.5 mr-3" />
+                    <div>
+                      <h4 className="text-sm font-semibold text-orange-800 mb-2">Ko-fi Payment Instructions</h4>
+                      <div className="text-sm text-orange-700 space-y-1">
+                        <p>• Ko-fi payments require manual verification</p>
+                        <p>• Check your Ko-fi dashboard for incoming payments</p>
+                        <p>• Verify payment amount and user email match</p>
+                        <p>• Click the checkmark to confirm payment and add credits</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {loading ? (
@@ -681,7 +738,10 @@ const Admin: React.FC = () => {
                         Cantidad
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Wallet
+                        Método
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Wallet/Referencia
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Fecha
@@ -712,13 +772,35 @@ const Admin: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
-                            ${payment.amount} USDT
+                            ${payment.amount} {payment.paymentMethod === 'kofi' ? 'USD' : 'USDT'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            {payment.paymentMethod === 'kofi' ? (
+                              <Coffee className="h-4 w-4 text-orange-500 mr-2" />
+                            ) : (
+                              <DollarSign className="h-4 w-4 text-green-500 mr-2" />
+                            )}
+                            <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                              payment.paymentMethod === 'kofi' 
+                                ? 'bg-orange-100 text-orange-800' 
+                                : 'bg-green-100 text-green-800'
+                            }`}>
+                              {payment.paymentMethod === 'kofi' ? 'Ko-fi' : 'USDT'}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 font-mono">
-                            {payment.walletAddress.substring(0, 10)}...
-                            {payment.walletAddress.substring(payment.walletAddress.length - 6)}
+                            {payment.paymentMethod === 'kofi' ? (
+                              <span className="text-orange-600">Ko-fi Payment</span>
+                            ) : (
+                              <>
+                                {payment.walletAddress.substring(0, 10)}...
+                                {payment.walletAddress.substring(payment.walletAddress.length - 6)}
+                              </>
+                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -736,6 +818,7 @@ const Admin: React.FC = () => {
                                 onClick={() => handleConfirmPayment(payment.id!)}
                                 disabled={processingPayment === payment.id}
                                 className="text-green-600 hover:text-green-900 disabled:opacity-50"
+                                title={payment.paymentMethod === 'kofi' ? 'Confirm Ko-fi payment' : 'Confirm USDT payment'}
                               >
                                 {processingPayment === payment.id ? (
                                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-500 border-t-transparent" />
@@ -747,6 +830,7 @@ const Admin: React.FC = () => {
                                 onClick={() => handleRejectPayment(payment.id!)}
                                 disabled={processingPayment === payment.id}
                                 className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                                title="Reject payment"
                               >
                                 <AlertCircle size={18} />
                               </button>
