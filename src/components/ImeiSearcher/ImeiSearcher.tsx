@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, HelpCircle, CreditCard, Smartphone, AlertCircle, Shield, CheckCircle, Clock, Star } from 'lucide-react';
+import { Search, HelpCircle, CreditCard, Smartphone, AlertCircle, Shield, CheckCircle, Clock, Star, Zap, Lock, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getDeviceByImei } from '../../services/deviceService';
@@ -171,58 +171,56 @@ const ImeiSearcher: React.FC<ImeiSearcherProps> = ({ onSearch, onSelectDevice })
       )}
 
       <div className="mt-8">
-        <h3 className="text-lg font-semibold text-gray-700 mb-8 text-center">Service Features</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <h3 className="text-lg font-semibold text-gray-900 mb-8 text-center">Service Features</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
           {[
             {
-              icon: <Smartphone className="text-blue-600" size={20} />,
+              icon: <Smartphone className="text-gray-700" size={20} />,
               title: "Auto Detection",
               description: "Advanced API integration for automatic device detection"
             },
             {
-              icon: <Shield className="text-green-600" size={20} />,
+              icon: <Shield className="text-gray-700" size={20} />,
               title: "Multi-Device Support",
               description: "iPhone, Apple Watch and iPad serial numbers"
             },
             {
-              icon: <Clock className="text-purple-600" size={20} />,
+              icon: <Clock className="text-gray-700" size={20} />,
               title: "Real-time Info",
               description: "Instant device information and pricing updates"
             },
-           
+            {
+              icon: <Zap className="text-gray-700" size={20} />,
+              title: "Instant Results",
+              description: "Get device information in seconds"
+            },
+            {
+              icon: <Lock className="text-gray-700" size={20} />,
+              title: "Secure API",
+              description: "Protected and encrypted data transmission"
+            },
+            {
+              icon: <Globe className="text-gray-700" size={20} />,
+              title: "Global Access",
+              description: "Available worldwide with 24/7 support"
+            }
           ].map((feature, index) => (
-            <div key={index} className="group flex flex-col h-full">
-              <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:border-gray-300 flex flex-col h-full">
-                <div className="flex flex-col items-center text-center mb-4">
-                  <div className="p-3 bg-gray-50 rounded-lg mb-3">
-                    {feature.icon}
-                  </div>
-                  <h4 className="font-medium text-gray-800 text-center">{feature.title}</h4>
+            <div 
+              key={index}
+              className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl hover:border-gray-300 transition-all duration-500 hover:scale-105 hover:-translate-y-1 animate-fade-in-up"
+              style={{ animationDelay: `${0.1 + index * 0.1}s` }}
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-gray-100 rounded-xl">
+                  {feature.icon}
                 </div>
-                <p className="text-gray-600 text-sm leading-relaxed text-center flex-grow">{feature.description}</p>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900 text-sm mb-1">{feature.title}</h4>
+                  <p className="text-xs text-gray-600 leading-relaxed">{feature.description}</p>
+                </div>
               </div>
             </div>
           ))}
-        </div>
-        
-        {/* Trust indicators */}
-        <div className="mt-8 max-w-2xl mx-auto">
-          <div className="p-6 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="flex flex-col items-center text-center">
-                <CheckCircle className="text-green-600 mb-2" size={20} />
-                <span className="text-sm font-medium text-gray-700">Instant Results</span>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <Shield className="text-blue-600 mb-2" size={20} />
-                <span className="text-sm font-medium text-gray-700">Secure API</span>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <Star className="text-purple-600 mb-2" size={20} />
-                <span className="text-sm font-medium text-gray-700">Global Access</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

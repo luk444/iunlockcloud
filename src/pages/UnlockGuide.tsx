@@ -1,12 +1,12 @@
 import React from 'react';
-import { Shield, AlertTriangle, CheckCircle, Clock, CreditCard, Smartphone, Wifi, RotateCcw, MessageSquare, DollarSign } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, Clock, CreditCard, Smartphone, Wifi, RotateCcw, MessageSquare, DollarSign, HelpCircle } from 'lucide-react';
 
 const UnlockGuide: React.FC = () => {
   const steps = [
     {
       title: "Check Your Device",
       description: "First, verify your device information using our device checker to confirm compatibility and see the required credits.",
-      icon: <Smartphone className="text-blue-500" size={24} />,
+      icon: <Smartphone className="text-gray-700" size={24} />,
       details: [
         "Go to the 'Check Device' section",
         "Enter your device's IMEI number",
@@ -16,7 +16,7 @@ const UnlockGuide: React.FC = () => {
     {
       title: "Load Credits (USDT)",
       description: "Purchase credits in USDT to process your device unlock. Contact our moderator via Telegram or send directly to our wallet.",
-      icon: <CreditCard className="text-green-500" size={24} />,
+      icon: <CreditCard className="text-gray-700" size={24} />,
       details: [
         "Contact moderator via Telegram for assistance",
         "Or send USDT directly to our specified wallet address",
@@ -26,7 +26,7 @@ const UnlockGuide: React.FC = () => {
     {
       title: "Register Your Device",
       description: "Once you have sufficient credits, register your device using the IMEI number.",
-      icon: <Shield className="text-purple-500" size={24} />,
+      icon: <Shield className="text-gray-700" size={24} />,
       details: [
         "Go to 'Register Device' section",
         "Paste your device's IMEI number",
@@ -36,7 +36,7 @@ const UnlockGuide: React.FC = () => {
     {
       title: "Start Unlock Process",
       description: "Turn off your device and initiate the unlock process.",
-      icon: <Clock className="text-orange-500" size={24} />,
+      icon: <Clock className="text-gray-700" size={24} />,
       details: [
         "Turn OFF your device completely",
         "Click 'Unlock Device' button",
@@ -47,7 +47,7 @@ const UnlockGuide: React.FC = () => {
     {
       title: "Device Activation",
       description: "When prompted, turn on your device and connect to internet.",
-      icon: <Wifi className="text-cyan-500" size={24} />,
+      icon: <Wifi className="text-gray-700" size={24} />,
       details: [
         "Turn ON your device when requested",
         "Connect to WiFi network",
@@ -58,7 +58,7 @@ const UnlockGuide: React.FC = () => {
     {
       title: "Complete Process",
       description: "Handle the unlock result and finalize the process.",
-      icon: <CheckCircle className="text-green-500" size={24} />,
+      icon: <CheckCircle className="text-gray-700" size={24} />,
       details: [
         "If successful: Restart device (or factory reset if in passcode)",
         "If error: Generate support ticket for verification",
@@ -69,22 +69,22 @@ const UnlockGuide: React.FC = () => {
 
   const importantNotes = [
     {
-      icon: <AlertTriangle className="text-red-500" size={20} />,
+      icon: <AlertTriangle className="text-gray-700" size={20} />,
       title: "Password Changes",
       text: "If the device owner changed the password recently, NO REFUND will be issued. We only charge for the token generation, and password changes are beyond our control."
     },
     {
-      icon: <DollarSign className="text-blue-500" size={20} />,
+      icon: <DollarSign className="text-gray-700" size={20} />,
       title: "Operational Costs",
       text: "Due to operational expenses, refunds are not available for password-related issues or owner-initiated changes."
     },
     {
-      icon: <MessageSquare className="text-purple-500" size={20} />,
+      icon: <MessageSquare className="text-gray-700" size={20} />,
       title: "Support Tickets",
       text: "Create a support ticket if the unlock fails validation. Our team will verify the issue and provide assistance."
     },
     {
-      icon: <RotateCcw className="text-orange-500" size={20} />,
+      icon: <RotateCcw className="text-gray-700" size={20} />,
       title: "Factory Reset",
       text: "If your device has a passcode, you'll need to perform a factory reset after successful unlock to configure it from scratch."
     }
@@ -99,7 +99,7 @@ const UnlockGuide: React.FC = () => {
   ];
 
   const successTips = [
-    "Keep device powered on during the entire process",
+    "Keep the device off when starting the process.",
     "Ensure stable internet connection throughout",
     "Follow instructions exactly as provided",
     "Do not interrupt the process once started",
@@ -147,30 +147,30 @@ const UnlockGuide: React.FC = () => {
 
         {/* Requirements and Tips */}
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
-            <h3 className="text-xl font-semibold text-blue-900 mb-4 flex items-center gap-2">
-              <CheckCircle size={24} className="text-blue-600" />
+          <div className="rounded-xl p-6 border border-gray-200" style={{ backgroundColor: 'rgb(29 41 109 / 15%)' }}>
+            <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <CheckCircle size={24} className="text-gray-700" />
               Requirements
             </h3>
             <ul className="space-y-3">
               {requirements.map((req, index) => (
-                <li key={index} className="text-blue-800 flex items-start gap-2">
-                  <CheckCircle size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                <li key={index} className="text-gray-700 flex items-start gap-2">
+                  <CheckCircle size={16} className="text-gray-600 mt-0.5 flex-shrink-0" />
                   <span className="text-sm">{req}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="bg-green-50 rounded-xl p-6 border border-green-200">
-            <h3 className="text-xl font-semibold text-green-900 mb-4 flex items-center gap-2">
-              <Shield size={24} className="text-green-600" />
+          <div className="rounded-xl p-6 border border-gray-200" style={{ backgroundColor: 'rgb(29 109 65 / 15%)' }}>
+            <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Shield size={24} className="text-gray-700" />
               Success Tips
             </h3>
             <ul className="space-y-3">
               {successTips.map((tip, index) => (
-                <li key={index} className="text-green-800 flex items-start gap-2">
-                  <CheckCircle size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                <li key={index} className="text-gray-700 flex items-start gap-2">
+                  <CheckCircle size={16} className="text-gray-600 mt-0.5 flex-shrink-0" />
                   <span className="text-sm">{tip}</span>
                 </li>
               ))}
@@ -194,27 +194,67 @@ const UnlockGuide: React.FC = () => {
           </div>
         </div>
 
-        {/* Contact Information */}
-        <div className="mt-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-8 text-white text-center">
-          <h3 className="text-2xl font-bold mb-4">Need Help?</h3>
-          <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-            If you encounter any issues during the unlock process or have questions about our service, 
-            don't hesitate to contact our support team.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        {/* FAQ Section */}
+        <div className="mt-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Frequently Asked Questions</h2>
+          <div className="max-w-4xl mx-auto space-y-4">
+            {[
+              {
+                question: "How long does the unlock process take?",
+                answer: "The unlock process typically takes 10-35 minutes once you have sufficient credits and follow all steps correctly."
+              },
+              {
+                question: "What if the unlock fails?",
+                answer: "If the unlock fails, create a support ticket. Our team will verify the issue and provide assistance or refund if applicable."
+              },
+              {
+                question: "Do I need to factory reset my device?",
+                answer: "Factory reset is only required if your device has a passcode. For devices without passcode, a simple restart is sufficient."
+              },
+              {
+                question: "Can I get a refund if it doesn't work?",
+                answer: "Refunds are not available for password-related issues or owner-initiated changes. We only charge for token generation."
+              },
+              {
+                question: "What devices are supported?",
+                answer: "We support all iPhone models from iPhone 5 to iPhone 16 Pro Max, including Apple Watch and iPad serial numbers."
+              }
+            ].map((faq, index) => (
+              <div 
+                key={index}
+                className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300"
+              >
+                <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <HelpCircle size={20} className="text-gray-700" />
+                  {faq.question}
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Need Help Section */}
+        <div className="mt-16 text-center">
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200 max-w-2xl mx-auto">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <MessageSquare className="text-gray-700" size={32} />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Need Help?</h2>
+            <p className="text-gray-600 mb-8 text-sm leading-relaxed">
+              If you encounter any issues during the unlock process or have questions about our service, don't hesitate to contact our support team.
+            </p>
             <a
               href="https://t.me/idelete_creditos_mod"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold transition-all duration-300 hover:bg-gray-800 transform hover:scale-105 hover:shadow-lg"
             >
-              <MessageSquare size={20} />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" width="20" height="20">
+                <path d="M9.993 16.485l-.402 5.647c.575 0 .824-.247 1.127-.544l2.7-2.57 5.594 4.08c1.024.564 1.762.267 2.03-.952L23.99 3.668c.371-1.506-.544-2.096-1.546-1.74L1.11 9.72c-1.463.55-1.448 1.337-.25 1.694l5.818 1.82 13.49-8.517c.635-.419 1.214-.188.738.233L9.993 16.485z" />
+              </svg>
               Contact via Telegram
             </a>
-            <button className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white text-white rounded-lg font-medium hover:bg-white hover:text-blue-600 transition-colors">
-              <Shield size={20} />
-              Create Support Ticket
-            </button>
           </div>
         </div>
       </div>

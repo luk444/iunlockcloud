@@ -194,16 +194,16 @@ const HomePage: React.FC = () => {
       </section>
       
       {/* Enhanced Stats Section */}
-      <section className="py-16 sm:py-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 relative overflow-hidden">
+      <section className="py-16 sm:py-20 bg-gray-50 relative overflow-hidden">
         {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-indigo-200 rounded-full opacity-20 blur-3xl"></div>
+          <div className="absolute top-0 left-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-gray-200 rounded-full opacity-20 blur-3xl"></div>
+          <div className="absolute bottom-0 right-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-gray-300 rounded-full opacity-20 blur-3xl"></div>
         </div>
         
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12 sm:mb-16">
-            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-3 sm:px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-3 sm:px-4 py-2 rounded-full text-sm font-medium mb-4">
               <TrendingUp className="h-4 w-4" />
               Trusted Worldwide
             </div>
@@ -218,52 +218,48 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {[
               { 
-                icon: <Users className="h-6 sm:h-8 w-6 sm:w-8 text-blue-500" />,
+                icon: <Users className="h-6 sm:h-8 w-6 sm:w-8 text-gray-700" />,
                 number: `${counters.devices}K+`, 
                 label: "Devices Unlocked",
                 description: "Successfully processed",
-                color: "blue"
+                color: "gray"
               },
               { 
-                icon: <Award className="h-6 sm:h-8 w-6 sm:w-8 text-emerald-500" />,
+                icon: <Award className="h-6 sm:h-8 w-6 sm:w-8 text-gray-700" />,
                 number: `${counters.success.toFixed(1)}%`, 
                 label: "Success Rate",
                 description: "Guaranteed results",
-                color: "emerald"
+                color: "gray"
               },
               { 
-                icon: <Headphones className="h-6 sm:h-8 w-6 sm:w-8 text-purple-500" />,
+                icon: <Headphones className="h-6 sm:h-8 w-6 sm:w-8 text-gray-700" />,
                 number: "24/7", 
                 label: "Expert Support",
                 description: "Always available",
-                color: "purple"
+                color: "gray"
               },
               { 
-                icon: <Globe className="h-6 sm:h-8 w-6 sm:w-8 text-orange-500" />,
+                icon: <Globe className="h-6 sm:h-8 w-6 sm:w-8 text-gray-700" />,
                 number: `${counters.countries}+`, 
                 label: "Countries Served",
                 description: "Global coverage",
-                color: "orange"
+                color: "gray"
               }
             ].map((stat, index) => (
               <div 
                 key={index} 
-                className="group relative bg-white/80 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-white/50 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2"
+                className="group relative bg-white p-4 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-white/40 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="relative z-10">
-                  <div className={`inline-flex p-2 sm:p-3 rounded-lg sm:rounded-xl bg-${stat.color}-100 mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className="inline-flex p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gray-100 mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
                     {stat.icon}
                   </div>
-                  <div className={`text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-${stat.color}-600 mb-1 sm:mb-2 group-hover:scale-105 transition-transform duration-300`}>
+                  <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-1 sm:mb-2 group-hover:scale-105 transition-transform duration-300">
                     {stat.number}
                   </div>
                   <div className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 mb-1">{stat.label}</div>
                   <div className="text-xs sm:text-sm text-gray-600">{stat.description}</div>
                 </div>
-                
-                {/* Hover glow effect */}
-                <div className={`absolute inset-0 rounded-xl sm:rounded-2xl bg-${stat.color}-400 opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500`}></div>
               </div>
             ))}
           </div>
@@ -272,15 +268,15 @@ const HomePage: React.FC = () => {
           <div className="mt-12 sm:mt-16 text-center">
             <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 opacity-60">
               <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
-                <Shield className="h-4 sm:h-5 w-4 sm:w-5 text-green-500" />
+                <Shield className="h-4 sm:h-5 w-4 sm:w-5 text-gray-600" />
                 SSL Encrypted
               </div>
               <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
-                <Star className="h-4 sm:h-5 w-4 sm:w-5 text-yellow-500" />
+                <Star className="h-4 sm:h-5 w-4 sm:w-5 text-gray-600" />
                 4.9/5 Rating
               </div>
               <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
-                <Zap className="h-4 sm:h-5 w-4 sm:w-5 text-blue-500" />
+                <Zap className="h-4 sm:h-5 w-4 sm:w-5 text-gray-600" />
                 Instant Processing
               </div>
             </div>
@@ -289,7 +285,7 @@ const HomePage: React.FC = () => {
       </section>
       
       {/* Enhanced CTA Section */}
-      <section className="relative py-16 sm:py-20 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 overflow-hidden">
+      <section className="relative py-16 sm:py-20 overflow-hidden" style={{ background: 'linear-gradient(to bottom right, #09090a, #080a10)' }}>
         {/* Background effects */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full opacity-20">
