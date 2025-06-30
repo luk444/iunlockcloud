@@ -21,7 +21,9 @@ import {
   ArrowDown,
   Target,
   Gift,
-  Crown
+  Crown,
+  Coffee,
+  DollarSign
 } from 'lucide-react';
 
 const AddCredits: React.FC = () => {
@@ -39,6 +41,7 @@ const AddCredits: React.FC = () => {
   const [sortBy, setSortBy] = useState<'name' | 'price'>('price');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [isVisible, setIsVisible] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'usdt' | 'kofi'>('usdt');
 
   // Mock user for demo
   const currentUser = { uid: 'demo-user', email: 'demo@example.com' };
@@ -187,7 +190,7 @@ const AddCredits: React.FC = () => {
     setSelectedPlan({
       amount: packageAmount,
       credits: totalCredits,
-      description: `${packageAmount} USDT → ${totalCredits} credits${bonus > 0 ? ` (+${bonus} bonus)` : ''}`
+      description: `${packageAmount} ${paymentMethod === 'usdt' ? 'USDT' : 'USD'} → ${totalCredits} credits${bonus > 0 ? ` (+${bonus} bonus)` : ''}`
     });
     setStep('form');
   };
@@ -198,7 +201,7 @@ const AddCredits: React.FC = () => {
     setSelectedPlan({
       amount: devicePrice,
       credits: devicePrice,
-      description: `${devicePrice} USDT → ${devicePrice} credits`
+      description: `${devicePrice} ${paymentMethod === 'usdt' ? 'USDT' : 'USD'} → ${devicePrice} credits`
     });
     setStep('form');
   };
@@ -212,16 +215,16 @@ const AddCredits: React.FC = () => {
     }
     
     if (numAmount < 1) {
-      setError('Minimum amount is 1 USDT');
+      setError(`Minimum amount is 1 ${paymentMethod === 'usdt' ? 'USDT' : 'USD'}`);
       return false;
     }
     
-    if (!walletAddress.trim()) {
+    if (paymentMethod === 'usdt' && !walletAddress.trim()) {
       setError('Please enter your wallet address');
       return false;
     }
     
-    if (walletAddress.length < 26) {
+    if (paymentMethod === 'usdt' && walletAddress.length < 26) {
       setError('Please enter a valid wallet address');
       return false;
     }
@@ -259,6 +262,7 @@ const AddCredits: React.FC = () => {
     setWalletAddress('');
     setError('');
     setSelectedPlan(null);
+    setPaymentMethod('usdt');
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -573,9 +577,49 @@ const AddCredits: React.FC = () => {
             )}
 
             <form className="space-y-4">
+              {/* Payment Method Selection */}
+              <div className="animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  Payment Method *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('usdt')}
+                    className={`p-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2 ${
+                      paymentMethod === 'usdt' 
+                        ? 'border-gray-900 bg-gray-900 text-white shadow-lg' 
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:shadow-md'
+                    }`}
+                  >
+                    <DollarSign size={24} />
+                    <div className="text-center">
+                      <div className="font-semibold text-sm">USDT Crypto</div>
+                      <div className="text-xs opacity-80">Binance Smart Chain</div>
+                    </div>
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('kofi')}
+                    className={`p-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2 ${
+                      paymentMethod === 'kofi' 
+                        ? 'border-gray-900 bg-gray-900 text-white shadow-lg' 
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:shadow-md'
+                    }`}
+                  >
+                    <Coffee size={24} />
+                    <div className="text-center">
+                      <div className="font-semibold text-sm">Ko-fi</div>
+                      <div className="text-xs opacity-80">Credit Card / PayPal</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Amount to Pay (USDT) *
+                  Amount to Pay ({paymentMethod === 'usdt' ? 'USDT' : 'USD'}) *
                 </label>
                 <input
                   type="number"
@@ -589,14 +633,14 @@ const AddCredits: React.FC = () => {
                   min="1"
                   step="0.01"
                   className="w-full px-3 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-base transition-all duration-300 hover:border-gray-300"
-                  placeholder="Enter amount in USDT"
+                  placeholder={`Enter amount in ${paymentMethod === 'usdt' ? 'USDT' : 'USD'}`}
                   required
                 />
                 <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="text-gray-700 space-y-1 text-sm">
                     <div className="flex justify-between items-center">
                       <span>💰 You pay:</span>
-                      <span className="font-bold text-gray-900">${amount || '0'} USDT</span>
+                      <span className="font-bold text-gray-900">${amount || '0'} {paymentMethod === 'usdt' ? 'USDT' : 'USD'}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span>🎯 You receive:</span>
@@ -612,23 +656,25 @@ const AddCredits: React.FC = () => {
                 </div>
               </div>
 
-              <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Your Wallet Address (Source) *
-                </label>
-                <input
-                  type="text"
-                  value={walletAddress}
-                  onChange={(e) => setWalletAddress(e.target.value)}
-                  className="w-full px-3 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-300 hover:border-gray-300"
-                  placeholder="Enter your USDT wallet address"
-                  required
-                />
-                <p className="text-gray-500 mt-1 flex items-center gap-1 text-xs">
-                  <Info size={12} />
-                  The wallet address from which you will send USDT
-                </p>
-              </div>
+              {paymentMethod === 'usdt' && (
+                <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Your Wallet Address (Source) *
+                  </label>
+                  <input
+                    type="text"
+                    value={walletAddress}
+                    onChange={(e) => setWalletAddress(e.target.value)}
+                    className="w-full px-3 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-300 hover:border-gray-300"
+                    placeholder="Enter your USDT wallet address"
+                    required
+                  />
+                  <p className="text-gray-500 mt-1 flex items-center gap-1 text-xs">
+                    <Info size={12} />
+                    The wallet address from which you will send USDT
+                  </p>
+                </div>
+              )}
 
               <button
                 type="button"
@@ -644,7 +690,12 @@ const AddCredits: React.FC = () => {
 
             <div className="mt-6 text-center animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
               <div className="border-t border-gray-200 pt-4">
-                <p className="text-gray-600 mb-3 text-sm">Need help or don't have USDT?</p>
+                <p className="text-gray-600 mb-3 text-sm">
+                  {paymentMethod === 'usdt' 
+                    ? 'Need help or don\'t have USDT?' 
+                    : 'Need help with payment or have questions?'
+                  }
+                </p>
                 <a
                   href="https://t.me/idelete_creditos_mod"
                   target="_blank"
@@ -672,25 +723,30 @@ const AddCredits: React.FC = () => {
             ← Back to Form
           </button>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-500 max-h-[80vh] overflow-hidden">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full mb-3 animate-pulse">
-                <Wallet className="text-gray-700" size={24} />
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 hover:shadow-xl transition-all duration-500 overflow-hidden max-h-[150vh]">
+            <div className="text-center mb-4">
+              <div className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full mb-2 animate-pulse">
+                {paymentMethod === 'usdt' ? <Wallet className="text-gray-700" size={20} /> : <Coffee className="text-gray-700" size={20} />}
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">Complete Payment</h2>
-              <p className="text-gray-600 text-sm">Send USDT to the address below to complete your purchase</p>
+              <h2 className="text-xl font-bold text-gray-900 mb-1">Complete Payment</h2>
+              <p className="text-gray-600 text-xs">
+                {paymentMethod === 'usdt' 
+                  ? 'Send USDT to the address below to complete your purchase'
+                  : 'Complete your payment through Ko-fi to receive your credits'
+                }
+              </p>
             </div>
 
-            <div className="space-y-4">
-              <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl animate-slide-in">
-                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-sm">
-                  <Info size={16} />
+            <div className="space-y-3">
+              <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl animate-slide-in">
+                <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2 text-xs">
+                  <Info size={14} />
                   Payment Summary
                 </h3>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-1 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-700">💰 Amount to pay:</span>
-                    <span className="font-bold text-gray-900">${amount} USDT</span>
+                    <span className="font-bold text-gray-900">${amount} {paymentMethod === 'usdt' ? 'USDT' : 'USD'}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-700">🎯 Credits you'll receive:</span>
@@ -702,79 +758,115 @@ const AddCredits: React.FC = () => {
                       <span className="font-bold">+{selectedPlan.credits - selectedPlan.amount} FREE!</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-700">📱 Your Wallet:</span>
-                    <span className="font-mono text-xs text-gray-500">{walletAddress.substring(0, 8)}...{walletAddress.substring(walletAddress.length - 6)}</span>
-                  </div>
+                  {paymentMethod === 'usdt' && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">📱 Your Wallet:</span>
+                      <span className="font-mono text-xs text-gray-500">{walletAddress.substring(0, 8)}...{walletAddress.substring(walletAddress.length - 6)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-900 text-sm">Send USDT to:</h3>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={copyToClipboard}
-                      className="p-1 text-gray-500 hover:text-gray-700 transition-all duration-300 rounded hover:bg-white transform hover:scale-110"
-                      title="Copy address"
-                    >
-                      {copied ? <CheckCircle size={16} className="text-gray-600 animate-bounce" /> : <Copy size={16} />}
-                    </button>
-                    <button
-                      onClick={refreshWallet}
-                      className="p-1 text-gray-500 hover:text-gray-700 transition-all duration-300 rounded hover:bg-white transform hover:scale-110"
-                      title="Switch wallet"
-                    >
-                      <RefreshCw size={16} />
-                    </button>
+              {paymentMethod === 'usdt' ? (
+                <>
+                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold text-gray-900 text-xs">Send USDT to:</h3>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={copyToClipboard}
+                          className="p-1 text-gray-500 hover:text-gray-700 transition-all duration-300 rounded hover:bg-white transform hover:scale-110"
+                          title="Copy address"
+                        >
+                          {copied ? <CheckCircle size={14} className="text-gray-600 animate-bounce" /> : <Copy size={14} />}
+                        </button>
+                        <button
+                          onClick={refreshWallet}
+                          className="p-1 text-gray-500 hover:text-gray-700 transition-all duration-300 rounded hover:bg-white transform hover:scale-110"
+                          title="Switch wallet"
+                        >
+                          <RefreshCw size={14} />
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="p-2 bg-white border border-gray-200 rounded-lg font-mono text-xs break-all text-gray-900 hover:bg-gray-50 transition-colors duration-300">
+                      {currentWallet}
+                    </div>
+                    
+                    <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                      <RefreshCw size={10} />
+                      Having trouble? Click refresh to try our backup wallet
+                    </p>
                   </div>
-                </div>
-                
-                <div className="p-3 bg-white border border-gray-200 rounded-lg font-mono text-xs break-all text-gray-900 hover:bg-gray-50 transition-colors duration-300">
-                  {currentWallet}
-                </div>
-                
-                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                  <RefreshCw size={12} />
-                  Having trouble? Click refresh to try our backup wallet
-                </p>
-              </div>
 
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="text-red-600 mt-0.5 animate-pulse" size={16} />
-                  <div className="text-red-700 text-xs">
-                    <p className="font-semibold mb-1">⚠️ CRITICAL: Network Requirements</p>
-                    <div className="space-y-0.5">
-                      <p>• Only use <strong>BEP20 (Binance Smart Chain)</strong> network</p>
-                      <p>• Wrong network = <strong>permanent loss of funds</strong></p>
-                      <p>• Verify network before sending</p>
+                  <div className="p-2 bg-red-50 border border-red-200 rounded-xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="text-red-600 mt-0.5 animate-pulse" size={14} />
+                      <div className="text-red-700 text-xs">
+                        <p className="font-semibold mb-1">⚠️ CRITICAL: Network Requirements</p>
+                        <div className="space-y-0.5">
+                          <p>• Only use <strong>BEP20 (Binance Smart Chain)</strong> network</p>
+                          <p>• Wrong network = <strong>permanent loss of funds</strong></p>
+                          <p>• Verify network before sending</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                </>
+              ) : (
+                <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                  <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2 text-xs">
+                    <Coffee size={14} />
+                    Ko-fi Payment
+                  </h3>
+                  <p className="text-gray-700 text-xs ">
+                    Complete your payment through Ko-fi using your preferred payment method (Credit Card, PayPal, etc.)
+                  </p>
+                  <div className="bg-white border border-gray-200 rounded-lg p-1 overflow-hidden">
+                    <iframe 
+                      id='kofiframe' 
+                      src='https://ko-fi.com/iunlockers/?hidefeed=true&widget=true&embed=true&preview=true' 
+                      style={{
+                        border: 'none',
+                        width: '100%',
+                        height: '600px',
+                        background: '#f9f9f9',
+                        borderRadius: '6px'
+                      }}
+                      title='iunlockers'
+                      scrolling="no"
+                      className="w-full"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                    <Info size={10} />
+                    If the payment form doesn't load, please refresh the page or contact support
+                  </p>
                 </div>
-              </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 <button
                   onClick={() => setStep('form')}
-                  className="py-2 px-4 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 font-semibold text-sm transform hover:scale-105"
+                  className="py-2 px-3 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 font-semibold text-xs transform hover:scale-105"
                 >
                   Back
                 </button>
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="py-2 px-4 bg-gray-900 text-white rounded-xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 font-semibold text-sm transform hover:scale-105 hover:shadow-lg"
+                  className="py-2 px-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 font-semibold text-xs transform hover:scale-105 hover:shadow-lg"
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                      <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent" />
                       Processing...
                     </>
                   ) : (
                     <>
-                      <CheckCircle size={16} />
-                      I Sent the Payment
+                      <CheckCircle size={14} />
+                      {paymentMethod === 'usdt' ? 'I Sent the Payment' : 'I Completed Payment'}
                     </>
                   )}
                 </button>
@@ -806,9 +898,14 @@ const AddCredits: React.FC = () => {
                 What happens next?
               </h4>
               <div className="space-y-2 text-sm">
-                {[
+                {paymentMethod === 'usdt' ? [
                   "Our team will verify your USDT transaction",
                   "Credits will be added to your account within 24-48 hours",
+                  "You'll see the updated balance in your dashboard",
+                  "Check \"Support Tickets\" for real-time updates"
+                ] : [
+                  "Our team will verify your Ko-fi payment",
+                  "Credits will be added to your account within 2-4 hours",
                   "You'll see the updated balance in your dashboard",
                   "Check \"Support Tickets\" for real-time updates"
                 ].map((step, index) => (
