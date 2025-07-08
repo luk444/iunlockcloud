@@ -2,6 +2,21 @@ import { Device } from '../types';
 
 // Model image mapping with credits
 const modelImageMap: Record<string, { imageUrl: string; credits: number }> = {
+  // iPhone 16 series
+  "iphone-16-pro-max": {
+    imageUrl: "https://www.apple.com/v/iphone-16/f/images/overview/contrast/iphone_16_pro__fzqmc24ecpui_xlarge.jpg",
+    credits: 85
+  },
+  "iphone-16-pro": {
+    imageUrl: "https://www.apple.com/v/iphone-16/f/images/overview/contrast/iphone_16_pro__fzqmc24ecpui_xlarge.jpg",
+    credits: 82
+  },
+  "iphone-16": {
+    imageUrl: "https://www.apple.com/v/iphone-16/f/images/overview/contrast/iphone_16__flbknhdndb22_xlarge.jpg",
+    // Alternative CDS Assets URL: https://cdsassets.apple.com/content/services/pub/image?productid=301045&size=960x960
+    credits: 78
+  },
+  // iPhone 15 series
   "iphone-15-pro-max": {
     imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/images/iphone-15-pro-max-family.240x240.png",
     credits: 68

@@ -81,6 +81,9 @@ const AddCredits: React.FC = () => {
 
   // Real iPhone pricing data with actual images
   const iphoneModels = [
+    { name: "iPhone 16 Pro Max", price: 85, imageUrl: "https://www.apple.com/v/iphone-16/f/images/overview/contrast/iphone_16_pro__fzqmc24ecpui_xlarge.jpg", difficulty: "Extreme", year: "2024" },
+    { name: "iPhone 16 Pro", price: 82, imageUrl: "https://www.apple.com/v/iphone-16/f/images/overview/contrast/iphone_16_pro__fzqmc24ecpui_xlarge.jpg", difficulty: "Extreme", year: "2024" },
+    { name: "iPhone 16", price: 78, imageUrl: "https://www.apple.com/v/iphone-16/f/images/overview/contrast/iphone_16__flbknhdndb22_xlarge.jpg", difficulty: "Hard", year: "2024" },
     { name: "iPhone 15 Pro Max", price: 68, imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/images/iphone-15-pro-max-family.240x240.png", difficulty: "Extreme", year: "2023" },
     { name: "iPhone 15 Pro", price: 65, imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/images/iphone-15-pro-family.240x240.png", difficulty: "Extreme", year: "2023" },
     { name: "iPhone 15 Plus", price: 63, imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/images/iphone-15-plus-family.240x240.png", difficulty: "Hard", year: "2023" },
@@ -91,7 +94,7 @@ const AddCredits: React.FC = () => {
     { name: "iPhone 14", price: 54, imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/iphone/iphone-14-family.240x240.png", difficulty: "Medium", year: "2022" },
     { name: "iPhone 13 Pro Max", price: 50, imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/iphone/iphone13-pro-max-colors.240x240.png", difficulty: "Medium", year: "2021" },
     { name: "iPhone SE 2023", price: 50, imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/iphone/iphone-se-3rd-gen-colors.240x240.png", difficulty: "Medium", year: "2023" },
-    { name: "iPhone 8", price: 50, imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/iphone/iphone-8.240x240.png", difficulty: "Medium", year: "2017" },
+    { name: "iPhone 8", price: 25, imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/iphone/iphone-8.240x240.png", difficulty: "Medium", year: "2017" },
     { name: "iPhone 13 Pro", price: 48, imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/iphone/iphone13-pro-colors.240x240.png", difficulty: "Medium", year: "2021" },
     { name: "iPhone 13 Mini", price: 45, imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/iphone/iphone13-mini-colors.240x240.png", difficulty: "Easy", year: "2021" },
     { name: "iPhone 13", price: 45, imageUrl: "https://cdsassets.apple.com/live/I2F2FLC5/iphone/iphone13-colors.240x240.png", difficulty: "Easy", year: "2021" },
