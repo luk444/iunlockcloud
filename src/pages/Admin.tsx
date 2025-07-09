@@ -596,6 +596,67 @@ const Admin: React.FC = () => {
     }
   };
 
+  const generateRejectionMessage = (ticket: Ticket) => {
+    return `🔐 iCloud Unlock Request – Validation & Security Report
+Ticket ID: #${ticket.id?.substring(0, 8)}
+Customer Email: ${ticket.userEmail}
+Device IMEI: ${ticket.imei || 'N/A'}
+Device Model: ${ticket.model || 'N/A'}
+Unlock Status: ❌ Failed – Server Validation Rejected
+
+✅ Token Generation Summary
+Token Generated: ✅ Yes
+
+Token Format: ✅ Valid
+
+Token Transmission: ✅ Successful
+
+Apple Server Response: ❌ Rejected (Security Conflict)
+
+❌ Validation Failure Analysis
+Our system successfully generated and submitted the token for the iCloud unlinking process. However, the Apple server rejected the request due to a security state conflict related to the associated iCloud account.
+
+This conflict is caused by a password change on the Apple ID linked to the device, which alters the internal security state and invalidates any unlinking request.
+
+🔍 Automated Detection Logs
+Conflict Type: Detected Apple ID Password Change
+
+Account Status: Password modified after device was locked or lost
+
+Token Status: Automatically invalidated during validation phase
+
+Server Response Code: [REJECTED:SECURITY_POLICY_VIOLATION]
+
+Final Result: Unlock process blocked due to compromised token integrity
+
+Please note: The password change may not have occurred recently. It could have happened at the time of loss, during any recovery attempt, or at any moment in the past.
+Once a password is changed, Apple's security system marks the device as high-risk and blocks all unlinking requests through token-based validation.
+
+📘 Reference to User Guide & Policies
+This behavior is explicitly outlined in our official unlock guide, under the "Important Notes & Policies" section:
+
+"If the device owner changed the password recently, NO REFUND will be issued. We only charge for the token generation, and password changes are beyond our control."
+"Apple's system automatically invalidates tokens if a password reset or two-factor change is detected, regardless of when the change occurred."
+
+By proceeding with the unlock request, users agree to these terms and confirm that the account has not been altered post-lock.
+
+🧾 Final Notes
+✅ The token was properly generated and sent
+
+❌ Apple's server rejected the request due to a past account change
+
+🔁 Refunds are not issued in these cases, as operational costs are incurred regardless of success
+
+📄 This case is closed as "Rejected due to password-related account conflict"
+
+✉️ Language Note
+For faster and more accurate assistance in the future, please contact us in English. This helps our support team respond more efficiently and avoid misunderstandings.
+
+Thank you for using iUnlock Cloud.
+— Technical Validation Department
+https://iunlock-cloud.org`;
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -1609,10 +1670,24 @@ const Admin: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Respuesta del Administrador *
                   </label>
+                  <div className="flex gap-2 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (selectedTicket) {
+                          setAdminResponse(generateRejectionMessage(selectedTicket));
+                          setRefundReason('Rejected due to password-related account conflict');
+                        }
+                      }}
+                      className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                    >
+                      Aplicar Mensaje de Rechazo
+                    </button>
+                  </div>
                   <textarea
                     value={adminResponse}
                     onChange={(e) => setAdminResponse(e.target.value)}
-                    rows={4}
+                    rows={8}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Escribe tu respuesta al usuario..."
                   />
@@ -1641,7 +1716,13 @@ const Admin: React.FC = () => {
                             type="radio"
                             name="refundDecision"
                             checked={refundDecision === false}
-                            onChange={() => setRefundDecision(false)}
+                            onChange={() => {
+                              setRefundDecision(false);
+                              if (selectedTicket) {
+                                setAdminResponse(generateRejectionMessage(selectedTicket));
+                                setRefundReason('Rejected due to password-related account conflict');
+                              }
+                            }}
                             className="mr-2"
                           />
                           <X size={16} className="text-red-500 mr-1" />

@@ -37,6 +37,28 @@
         body { border-top: 16px solid #ffa100; }
       }
     </style>
+
+    <!-- Firebase Auth Redirect Handler -->
+    <script>
+      // Handle Firebase Auth redirects
+      (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode');
+        const oobCode = urlParams.get('oobCode');
+        
+        if (mode && oobCode && window.location.pathname === '/') {
+          console.log('Firebase Auth redirect detected in HTML:', { mode, oobCode: oobCode.substring(0, 20) + '...' });
+          
+          // Store the parameters in sessionStorage for the React app to use
+          sessionStorage.setItem('firebaseAuthMode', mode);
+          sessionStorage.setItem('firebaseAuthCode', oobCode);
+          sessionStorage.setItem('firebaseAuthParams', window.location.search);
+          
+          // Clear the URL parameters to avoid confusion
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="message">

@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar/Navbar';
@@ -21,12 +21,71 @@ import AddCredits from './components/AddCredits/AddCredits';
 import EmailVerification from './pages/EmailVerification';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import FirebaseAuthHandler from './components/FirebaseAuthHandler';
+
+// Component to handle Firebase Auth redirects
+const FirebaseAuthRedirectHandler: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check for Firebase Auth parameters in sessionStorage (from HTML script)
+    const storedMode = sessionStorage.getItem('firebaseAuthMode');
+    const storedCode = sessionStorage.getItem('firebaseAuthCode');
+    const storedParams = sessionStorage.getItem('firebaseAuthParams');
+    
+    if (storedMode && storedCode) {
+      console.log('Firebase Auth redirect detected from sessionStorage:', { 
+        mode: storedMode, 
+        code: `${storedCode.substring(0, 20)}...` 
+      });
+      
+      // Clear the stored parameters
+      sessionStorage.removeItem('firebaseAuthMode');
+      sessionStorage.removeItem('firebaseAuthCode');
+      sessionStorage.removeItem('firebaseAuthParams');
+      
+      // Redirect to the appropriate handler
+      if (storedMode === 'resetPassword') {
+        navigate(`/reset-password?oobCode=${encodeURIComponent(storedCode)}`);
+      } else if (storedMode === 'verifyEmail') {
+        navigate(`/__/auth/action?mode=${storedMode}&oobCode=${encodeURIComponent(storedCode)}`);
+      } else {
+        navigate(`/__/auth/action?${storedParams}`);
+      }
+      return;
+    }
+    
+    // Check if we're on the root path with Firebase Auth parameters (fallback)
+    if (location.pathname === '/' && location.search) {
+      const searchParams = new URLSearchParams(location.search);
+      const mode = searchParams.get('mode');
+      const oobCode = searchParams.get('oobCode');
+      
+      if (mode && oobCode) {
+        console.log('Firebase Auth redirect detected from URL:', { mode, oobCode: `${oobCode.substring(0, 20)}...` });
+        
+        // Redirect to the appropriate handler
+        if (mode === 'resetPassword') {
+          navigate(`/reset-password?oobCode=${encodeURIComponent(oobCode)}`);
+        } else if (mode === 'verifyEmail') {
+          navigate(`/__/auth/action?mode=${mode}&oobCode=${encodeURIComponent(oobCode)}`);
+        } else {
+          navigate(`/__/auth/action?${location.search.substring(1)}`);
+        }
+      }
+    }
+  }, [location, navigate]);
+
+  return null;
+};
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <div className="bg-gray-50">
+          <FirebaseAuthRedirectHandler />
           <LiveActivityFeed />
           <Navbar />
           <Routes>
@@ -39,7 +98,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/verify-email" element={<EmailVerification />} />
-            <Route path="/__/auth/action" element={<EmailVerification />} />
+            <Route path="/__/auth/action" element={<FirebaseAuthHandler />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             

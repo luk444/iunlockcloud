@@ -14,7 +14,7 @@ const ForgotPassword: React.FC = () => {
     e.preventDefault();
     
     if (!email) {
-      toast.error('Por favor ingresa tu dirección de email');
+      toast.error('Please enter your email address');
       return;
     }
 
@@ -22,18 +22,18 @@ const ForgotPassword: React.FC = () => {
       setLoading(true);
       await sendPasswordReset(email);
       setEmailSent(true);
-      toast.success('Email de restablecimiento enviado. Revisa tu bandeja de entrada.');
+      toast.success('Password reset email sent. Check your inbox.');
     } catch (error: any) {
       console.error('Error sending password reset:', error);
       
       if (error.code === 'auth/user-not-found') {
-        toast.error('No se encontró una cuenta con esta dirección de email');
+        toast.error('No account found with this email address');
       } else if (error.code === 'auth/invalid-email') {
-        toast.error('Dirección de email inválida');
+        toast.error('Invalid email address');
       } else if (error.code === 'auth/too-many-requests') {
-        toast.error('Demasiadas solicitudes. Intenta de nuevo en unos minutos');
+        toast.error('Too many requests. Please try again in a few minutes');
       } else {
-        toast.error('Error al enviar el email. Intenta de nuevo');
+        toast.error('Error sending email. Please try again');
       }
     } finally {
       setLoading(false);
@@ -50,9 +50,9 @@ const ForgotPassword: React.FC = () => {
               <Mail className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Restablecer Contraseña</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Reset Password</h2>
           <p className="text-gray-600">
-            Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña
+            Enter your email and we'll send you a link to reset your password
           </p>
         </div>
 
@@ -61,7 +61,7 @@ const ForgotPassword: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Dirección de Email
+                  Email Address
                 </label>
                 <input
                   id="email"
@@ -72,7 +72,7 @@ const ForgotPassword: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                  placeholder="Ingresa tu email"
+                  placeholder="Enter your email"
                 />
               </div>
 
@@ -84,12 +84,12 @@ const ForgotPassword: React.FC = () => {
                 {loading ? (
                   <>
                     <RefreshCw className="animate-spin h-5 w-5" />
-                    Enviando...
+                    Sending...
                   </>
                 ) : (
                   <>
                     <Mail className="h-5 w-5" />
-                    Enviar Email de Restablecimiento
+                    Send Reset Email
                   </>
                 )}
               </button>
@@ -100,9 +100,9 @@ const ForgotPassword: React.FC = () => {
                 <Mail className="text-green-500" size={32} />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">¡Email Enviado!</h3>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">Email Sent!</h3>
                 <p className="text-gray-600">
-                  Hemos enviado un enlace de restablecimiento a <strong>{email}</strong>
+                  We've sent a reset link to <strong>{email}</strong>
                 </p>
               </div>
               <div className="space-y-3">
@@ -110,24 +110,24 @@ const ForgotPassword: React.FC = () => {
                   onClick={() => setEmailSent(false)}
                   className="w-full py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                 >
-                  Enviar Otro Email
+                  Send Another Email
                 </button>
                 <Link
                   to="/login"
                   className="w-full block py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-center"
                 >
-                  Volver al Login
+                  Back to Login
                 </Link>
               </div>
             </div>
           )}
 
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-            <h3 className="font-medium text-blue-800 mb-2">💡 Consejos:</h3>
+            <h3 className="font-medium text-blue-800 mb-2">💡 Tips:</h3>
             <ul className="text-sm text-blue-700 space-y-1">
-              <li>• Revisa tu carpeta de spam si no encuentras el email</li>
-              <li>• El enlace expira después de 1 hora</li>
-              <li>• Asegúrate de usar la misma dirección de email de tu cuenta</li>
+              <li>• Check your spam folder if you don't see the email</li>
+              <li>• The link expires after 1 hour</li>
+              <li>• Make sure to use the same email address as your account</li>
             </ul>
           </div>
         </div>
@@ -139,7 +139,7 @@ const ForgotPassword: React.FC = () => {
             className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
           >
             <ArrowLeft size={16} />
-            Volver al Login
+            Back to Login
           </Link>
         </div>
       </div>

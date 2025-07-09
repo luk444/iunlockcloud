@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -16,5 +16,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Configure auth to use the app directly instead of Firebase Auth web
+auth.useDeviceLanguage();
+
+// Connect to auth emulator in development
+if (process.env.NODE_ENV === 'development') {
+  // Uncomment the line below if you want to use the auth emulator
+  // connectAuthEmulator(auth, 'http://localhost:9099');
+}
 
 export default app;

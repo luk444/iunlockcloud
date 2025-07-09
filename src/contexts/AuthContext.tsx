@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (auth.currentUser && !auth.currentUser.emailVerified) {
         await sendEmailVerification(auth.currentUser, {
           url: `${window.location.origin}/verify-email`,
-          handleCodeInApp: false,
+          handleCodeInApp: true,
         });
       } else {
         throw new Error('No user logged in or email already verified');
@@ -219,7 +219,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     await sendEmailVerification(result.user, {
       url: `${window.location.origin}/verify-email`,
-      handleCodeInApp: false,
+      handleCodeInApp: true,
     });
 
     await fetchUserData(result.user);
@@ -245,7 +245,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const sendPasswordReset = async (email: string) => {
     await sendPasswordResetEmail(auth, email, {
       url: `${window.location.origin}/reset-password`,
-      handleCodeInApp: false,
+      handleCodeInApp: true,
     });
   };
 
