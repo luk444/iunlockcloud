@@ -57,6 +57,7 @@ export interface User {
   emailVerified: boolean;
   isAdmin: boolean;
   credits: number;
+  createdAt?: any; // Firebase Timestamp
 }
 
 export interface PaymentRequest {

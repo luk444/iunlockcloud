@@ -1,5 +1,5 @@
 import { db } from '../firebase/config';
-import { collection, query, where, getDocs, doc, updateDoc, getDoc, runTransaction } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, getDoc, runTransaction, deleteDoc } from 'firebase/firestore';
 import { User } from '../types';
 
 export const userService = {
@@ -20,6 +20,52 @@ export const userService = {
       } as User;
     } catch (error) {
       console.error('Error getting user by email:', error);
+      throw error;
+    }
+  },
+
+  async getAllUsers(): Promise<User[]> {
+    try {
+      const usersCollection = collection(db, 'users');
+      const querySnapshot = await getDocs(usersCollection);
+      
+      const users: User[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        users.push({
+          uid: doc.id,
+          email: data.email,
+          displayName: data.displayName,
+          emailVerified: data.emailVerified || false,
+          isAdmin: data.isAdmin || false,
+          credits: data.credits || 0,
+          createdAt: data.createdAt
+        } as User);
+      });
+      
+      // Ordenar por fecha de creación (más recientes primero)
+      return users.sort((a, b) => {
+        if (a.createdAt && b.createdAt) {
+          const aTime = a.createdAt.seconds || 0;
+          const bTime = b.createdAt.seconds || 0;
+          return bTime - aTime; // Más recientes primero
+        }
+        // Si no hay createdAt, ordenar por email
+        return (a.email || '').localeCompare(b.email || '');
+      });
+    } catch (error) {
+      console.error('Error getting all users:', error);
+      throw error;
+    }
+  },
+
+  async deleteUser(userId: string): Promise<void> {
+    try {
+      // Eliminar el documento del usuario
+      const userRef = doc(db, 'users', userId);
+      await deleteDoc(userRef);
+    } catch (error) {
+      console.error('Error deleting user:', error);
       throw error;
     }
   },

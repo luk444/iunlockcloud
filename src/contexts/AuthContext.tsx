@@ -12,7 +12,7 @@ import {
   applyActionCode,
   checkActionCode
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
 import { User } from '../types';
 import toast from 'react-hot-toast';
@@ -82,6 +82,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           emailVerified: firebaseUser.emailVerified,
           isAdmin: false,
           credits: 0,
+          createdAt: serverTimestamp(),
         };
 
         await setDoc(userRef, newUser);

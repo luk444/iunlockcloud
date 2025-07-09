@@ -7,11 +7,11 @@ import { ticketService } from '../services/ticketService';
 import { getAllSerialDevices, addSerialDevice, updateSerialDevice, deleteSerialDevice, addSerialToDevice, removeSerialFromDevice } from '../services/serialDeviceService';
 import { getAllDevices } from '../services/deviceService';
 import { getProcessTimingConfig, updateProcessTimingConfig, resetProcessTimingConfig, ProcessTimingConfig } from '../services/configService';
-import { PaymentRequest, SerialDevice, Device, Ticket } from '../types';
+import { PaymentRequest, SerialDevice, Device, Ticket, User } from '../types';
 import toast from 'react-hot-toast';
 
 const Admin: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'payments' | 'credits' | 'iphone-devices' | 'watch-ipad' | 'api-models' | 'tickets' | 'timing-config'>('payments');
+  const [activeTab, setActiveTab] = useState<'payments' | 'credits' | 'iphone-devices' | 'watch-ipad' | 'api-models' | 'tickets' | 'timing-config' | 'users'>('payments');
   const [payments, setPayments] = useState<PaymentRequest[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +52,11 @@ const Admin: React.FC = () => {
   const [timingLoading, setTimingLoading] = useState(false);
   const [savingConfig, setSavingConfig] = useState(false);
   
+  // Users management states
+  const [users, setUsers] = useState<User[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [deletingUser, setDeletingUser] = useState<string | null>(null);
+  
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -65,6 +70,8 @@ const Admin: React.FC = () => {
       loadTickets();
     } else if (activeTab === 'timing-config') {
       loadTimingConfig();
+    } else if (activeTab === 'users') {
+      loadUsers();
     }
   }, [activeTab]);
 
@@ -130,6 +137,69 @@ const Admin: React.FC = () => {
       toast.error('Failed to load timing configuration');
     } finally {
       setTimingLoading(false);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      setUsersLoading(true);
+      const allUsers = await userService.getAllUsers();
+      setUsers(allUsers);
+    } catch (error) {
+      console.error('Error loading users:', error);
+      toast.error('Failed to load users');
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userEmail: string) => {
+    // Prevenir que el admin se elimine a sí mismo
+    if (userId === currentUser?.uid) {
+      toast.error('No puedes eliminar tu propia cuenta');
+      return;
+    }
+
+    // Confirmar la eliminación
+    const confirmed = window.confirm(
+      `¿Estás seguro de que quieres eliminar la cuenta de ${userEmail}?\n\nEsta acción no se puede deshacer y eliminará todos los datos del usuario.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingUser(userId);
+      await userService.deleteUser(userId);
+      
+      toast.success(
+        `✅ Usuario ${userEmail} eliminado exitosamente`,
+        {
+          duration: 4000,
+          style: {
+            background: '#DC2626',
+            color: 'white',
+            fontWeight: '500',
+          },
+        }
+      );
+      
+      // Recargar la lista de usuarios
+      await loadUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error(
+        'Error al eliminar usuario',
+        {
+          duration: 4000,
+          style: {
+            background: '#EF4444',
+            color: 'white',
+            fontWeight: '500',
+          },
+        }
+      );
+    } finally {
+      setDeletingUser(null);
     }
   };
 
@@ -509,6 +579,23 @@ const Admin: React.FC = () => {
     }).format(date);
   };
 
+  const formatUserRegistrationDate = (timestamp: any) => {
+    if (!timestamp) return 'Fecha no disponible';
+    
+    try {
+      const date = timestamp.toDate();
+      return new Intl.DateTimeFormat('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+    } catch (error) {
+      return 'Fecha no disponible';
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -657,6 +744,17 @@ const Admin: React.FC = () => {
           >
             <Settings className="inline mr-2" size={18} />
             Configuración de Tiempos
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`px-4 py-3 rounded-lg font-medium transition-colors ${
+              activeTab === 'users'
+                ? 'bg-blue-500 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <Users className="inline mr-2" size={18} />
+            Usuarios Registrados
           </button>
         </div>
 
@@ -1743,6 +1841,187 @@ const Admin: React.FC = () => {
                 <Settings className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Error al cargar configuración</h3>
                 <p className="text-gray-600">No se pudo cargar la configuración de tiempos</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Users Management Tab */}
+        {activeTab === 'users' && (
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-800">Usuarios Registrados</h2>
+              <p className="text-gray-600 mt-1">Gestionar usuarios registrados y verificar su estado</p>
+              
+              {/* User Statistics */}
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <div className="text-sm text-blue-600 font-medium">Total Usuarios</div>
+                  <div className="text-2xl font-bold text-blue-900">
+                    {users.length}
+                  </div>
+                </div>
+                <div className="bg-green-50 p-3 rounded-lg">
+                  <div className="text-sm text-green-600 font-medium">Email Verificado</div>
+                  <div className="text-2xl font-bold text-green-900">
+                    {users.filter(u => u.emailVerified).length}
+                  </div>
+                </div>
+                <div className="bg-purple-50 p-3 rounded-lg">
+                  <div className="text-sm text-purple-600 font-medium">Administradores</div>
+                  <div className="text-2xl font-bold text-purple-900">
+                    {users.filter(u => u.isAdmin).length}
+                  </div>
+                </div>
+                <div className="bg-orange-50 p-3 rounded-lg">
+                  <div className="text-sm text-orange-600 font-medium">Con Créditos</div>
+                  <div className="text-2xl font-bold text-orange-900">
+                    {users.filter(u => u.credits > 0).length}
+                  </div>
+                </div>
+                <div className="bg-indigo-50 p-3 rounded-lg">
+                  <div className="text-sm text-indigo-600 font-medium">Registrados Hoy</div>
+                  <div className="text-2xl font-bold text-indigo-900">
+                    {users.filter(u => {
+                      if (!u.createdAt) return false;
+                      const userDate = u.createdAt.toDate();
+                      const today = new Date();
+                      return userDate.toDateString() === today.toDateString();
+                    }).length}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {usersLoading ? (
+              <div className="flex justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : users.length === 0 ? (
+              <div className="text-center py-20">
+                <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No hay usuarios registrados</h3>
+                <p className="text-gray-600">Los usuarios aparecerán aquí una vez que se registren</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Usuario
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Estado
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Créditos
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Rol
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Fecha de Registro
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {users.map((user) => (
+                      <tr key={user.uid} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <span className="text-sm font-medium text-blue-600">
+                                  {user.email?.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {user.email}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                ID: {user.uid.substring(0, 8)}...
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            {user.emailVerified ? (
+                              <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                            ) : (
+                              <AlertCircle className="h-5 w-5 text-yellow-500 mr-2" />
+                            )}
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              user.emailVerified 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {user.emailVerified ? 'Verificado' : 'Pendiente'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {user.credits} créditos
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {user.credits > 0 ? 'Activo' : 'Sin créditos'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.isAdmin 
+                              ? 'bg-purple-100 text-purple-800' 
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {user.isAdmin ? 'Administrador' : 'Usuario'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {formatUserRegistrationDate(user.createdAt)}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {user.createdAt ? 'Registrado' : 'Fecha no disponible'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => {
+                                setUserEmail(user.email || '');
+                                setSearchedUser(user);
+                                setActiveTab('credits');
+                              }}
+                              className="text-blue-600 hover:text-blue-900"
+                              title="Gestionar créditos"
+                            >
+                              <CreditCard size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteUser(user.uid, user.email || '')}
+                              disabled={deletingUser === user.uid || user.uid === currentUser?.uid}
+                              className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={user.uid === currentUser?.uid ? "No puedes eliminar tu propia cuenta" : "Eliminar usuario"}
+                            >
+                              {deletingUser === user.uid ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-500 border-t-transparent" />
+                              ) : (
+                                <Trash2 size={16} />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
